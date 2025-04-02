@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
   Menu,
   Home,
@@ -12,17 +12,23 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/shadcn-components/ui/button";
 import { SidebarContext } from "@/context/SidebarContext";
+import { AuthContext } from "@/context/AuthContext";
+import { handleLogout } from "@/lib/auth";
 
 const Sidebar = () => {
   const { isSidebarOpen, toggleSidebar } = useContext(SidebarContext);
+  const navigate = useNavigate();
+  const { updateUser } = useContext(AuthContext);
 
   const menuItems = [
     { name: "Dashboard", icon: Home, path: "/admin/dashboard" },
     { name: "Users", icon: Users, path: "/admin/userControl" },
     { name: "Vets", icon: Shield, path: "/admin/vetControl" },
     { name: "Pets", icon: Clipboard, path: "/admin/petControl" },
-    { name: "Appointments", icon: Calendar, path: "/appointmentControl" },
+    { name: "Appointments", icon: Calendar, path: "/admin/appointmentControl" },
   ];
+
+  const logoutHandler = handleLogout(updateUser, navigate);
 
   return (
     <aside
@@ -74,9 +80,7 @@ const Sidebar = () => {
           {isSidebarOpen && "Profile"}
         </NavLink>
         <button
-          onClick={() => {
-            console.log("Logging out...");
-          }}
+          onClick={logoutHandler}
           className={`flex items-center gap-3 w-full text-left ${
             isSidebarOpen ? "py-4 px-3" : "my-1 py-4 px-3.5"
           } rounded-lg hover:bg-gray-800 mt-2`}

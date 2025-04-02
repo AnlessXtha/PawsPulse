@@ -67,6 +67,7 @@ export const addAppointment = async (req, res) => {
     const {
       vetId,
       petProfileId,
+      reasonToVist,
       appointmentDate,
       durationMinutes,
       recurring,
@@ -91,6 +92,7 @@ export const addAppointment = async (req, res) => {
       data: {
         vetId,
         petProfileId,
+        reasonToVist,
         appointmentDate: new Date(appointmentDate),
         durationMinutes,
         status: "pending",

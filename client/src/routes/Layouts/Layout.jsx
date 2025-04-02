@@ -3,7 +3,7 @@ import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import Navbar from "@/components/shared/Navbar";
 
-function Layout() {
+const Layout = () => {
   return (
     <div className="layout">
       <div className="navbar">
@@ -14,13 +14,21 @@ function Layout() {
       </div>
     </div>
   );
-}
+};
 
-function RequireAuth() {
+const RequireAuth = ({ allowedRoles }) => {
   const { currentUser } = useContext(AuthContext);
 
-  if (!currentUser) return <Navigate to="/login" />;
-  else {
+  if (!currentUser) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!allowedRoles.includes(currentUser?.userType)) {
+    return <Navigate to="/" replace />;
+  }
+
+  // If userType is "owner", render the layout with Navbar
+  if (currentUser?.userType === "owner") {
     return (
       <div className="layout">
         <div className="navbar">
@@ -32,6 +40,8 @@ function RequireAuth() {
       </div>
     );
   }
-}
+
+  return <Outlet />;
+};
 
 export { Layout, RequireAuth };

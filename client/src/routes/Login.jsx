@@ -32,8 +32,6 @@ const Login = () => {
     try {
       const res = await apiRequest.post("/auth/login", data);
 
-      console.log("herrrrrrr", res.data?.userInfo);
-
       updateUser(res.data?.userInfo);
 
       // console.log(currentUser, "currentUser");
@@ -66,7 +64,7 @@ const Login = () => {
     console.log(userType, "userType");
 
     if (userType === "owner") {
-      navigate("/");
+      navigate("/about");
     } else if (userType === "vet") {
       navigate("/vet/dashboard");
     } else if (userType === "admin") {

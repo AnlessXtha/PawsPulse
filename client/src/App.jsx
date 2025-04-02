@@ -1,4 +1,8 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 import OurServicesPage from "./routes/OurServicesPage";
 import { Layout, RequireAuth } from "@/routes/Layouts/Layout";
 import ProfilePage from "@/routes/ProfilePage";
@@ -13,8 +17,17 @@ import PetControl from "@/routes/Admin/PetControl";
 import AdminLayout from "@/routes/Layouts/AdminLayout";
 import { SidebarProvider } from "@/context/SidebarContext";
 import VetControl from "@/routes/Admin/VetControl";
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
+import AppointmentControl from "@/routes/Admin/AppointmentControl";
+import BookApointment from "@/routes/Owner/BookApointment";
 
 function App() {
+  const { currentUser } = useContext(AuthContext);
+
+  console.log(currentUser, "currentUser");
+  console.log(currentUser?.userType, "userType");
+
   const router = createBrowserRouter([
     {
       path: "/login",
@@ -66,47 +79,37 @@ function App() {
       ],
     },
     {
-      path: "/admin",
-      element: (
-        <SidebarProvider>
-          <AdminLayout />
-        </SidebarProvider>
-      ),
-
+      path: "/",
+      element: <RequireAuth allowedRoles={["admin"]} />,
       children: [
         {
-          path: "dashboard",
-          element: <AdminDashboard />,
+          path: "/admin",
+          element: (
+            <SidebarProvider>
+              <AdminLayout />
+            </SidebarProvider>
+          ),
+          children: [
+            {
+              index: true,
+              element: <Navigate to="dashboard" replace />,
+            },
+            { path: "dashboard", element: <AdminDashboard /> },
+            { path: "userControl", element: <UserControl /> },
+            { path: "petControl", element: <PetControl /> },
+            { path: "vetControl", element: <VetControl /> },
+            { path: "appointmentControl", element: <AppointmentControl /> },
+          ],
         },
-        {
-          path: "userControl",
-          element: <UserControl />,
-        },
-        {
-          path: "petControl",
-          element: <PetControl />,
-        },
-        {
-          path: "vetControl",
-          element: <VetControl />,
-        },
-        {
-          path: "appointmentControl",
-          // element: <AppointmentControl />,
-        },
-        // {
-        //   path: "petControl",
-        //   element: <PetControl />,
-        // },
       ],
     },
     {
-      // path: "/",
-      element: <RequireAuth />,
+      path: "/",
+      element: <RequireAuth allowedRoles={["owner"]} />,
       children: [
         {
-          path: "/profile",
-          element: <ProfilePage />,
+          path: "/bookAppointment",
+          element: <BookApointment />,
         },
       ],
     },

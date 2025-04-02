@@ -3,6 +3,7 @@
 import { Button } from "@/components/shadcn-components/ui/button";
 import { AuthContext } from "@/context/AuthContext";
 import apiRequest from "@/lib/apiRequest";
+import { handleLogout } from "@/lib/auth";
 import { Mail, Phone } from "lucide-react";
 import { useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -13,15 +14,17 @@ const Navbar = () => {
 
   const { currentUser, updateUser } = useContext(AuthContext);
 
-  const handleLogout = async () => {
-    try {
-      await apiRequest.post("/auth/logout");
-      updateUser(null);
-      navigate("/");
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  // const handleLogout = async () => {
+  //   try {
+  //     await apiRequest.post("/auth/logout");
+  //     updateUser(null);
+  //     navigate("/");
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
+
+  const logoutHandler = handleLogout(updateUser, navigate);
 
   return (
     <>
@@ -61,13 +64,26 @@ const Navbar = () => {
                 Our Services
               </NavLink>
             </li>
+
+            {currentUser?.userType === "owner" && (
+              <>
+                <li>
+                  <NavLink
+                    to="/bookAppointment"
+                    className={({ isActive }) => (isActive ? "font-bold" : "")}
+                  >
+                    Book Appointment
+                  </NavLink>
+                </li>
+              </>
+            )}
           </ul>
           {currentUser ? (
             <>
               <img src={currentUser.avatar || "/noavatar.jpg"} alt="" />
               <Button
                 className="cursor-pointer text-[18px] rounded-4xl bg-[#F3F4F6] text-[#A63E4B] py-7 px-10 duration-400 hover:bg-[#E5E7EB] hover:text-[#8F2E3B]"
-                onClick={() => handleLogout()}
+                onClick={logoutHandler}
               >
                 Log out
               </Button>
