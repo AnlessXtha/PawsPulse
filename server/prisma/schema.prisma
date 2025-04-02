@@ -1,0 +1,198 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  firstName     String
+  lastName      String
+  userType      UserType
+  username      String      @unique
+  email         String      @unique
+  contactNumber String      @unique
+  password      String
+  avatar        String?
+  createdAt     DateTime    @default(now())
+  modifiedAt    DateTime?
+  petProfile    PetProfile?
+  vet           Vets?
+  reports       Reports[]
+}
+
+enum UserType {
+  owner
+  vet
+  admin
+}
+
+model Vets {
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String               @unique @db.ObjectId
+  specialization     String
+  licenseNumber      String               @unique
+  user               Users                @relation(fields: [userId], references: [id])
+  appointments       Appointments[]
+  reports            Reports[]
+  vaccinationRecords VaccinationRecords[]
+}
+
+model PetProfile {
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  petName            String
+  petType            String
+  petBreed           String
+  petAge             Int
+  petGender          String
+  petAvatar          String?
+  createdAt          DateTime             @default(now())
+  modifiedAt         DateTime?
+  user               Users                @relation(fields: [userId], references: [id])
+  userId             String               @unique @db.ObjectId
+  appointments       Appointments[]
+  reports            Reports[]
+  vaccinationRecords VaccinationRecords[]
+}
+
+model Appointments {
+  appointmentId String @id @default(auto()) @map("_id") @db.ObjectId
+  // ownerId       String     @db.ObjectId
+  vetId         String @db.ObjectId
+  petProfileId  String @db.ObjectId
+
+  // owner         Users      @relation(fields: [ownerId], references: [id])
+  vet        Vets       @relation(fields: [vetId], references: [id])
+  petProfile PetProfile @relation(fields: [petProfileId], references: [id])
+
+  reasonToVist       String
+  appointmentDate    DateTime
+  durationMinutes    Int?
+  status             Status
+  rejectionReason    String?
+  cancellationReason String?
+  vetNotes           String?
+
+  isApproved Boolean @default(false) // can be automated after payment and only admin can change
+
+  recurring      Boolean   @default(false) // Indicates if appointment repeats
+  recurrenceRule String? // Stores recurrence pattern (e.g., "weekly", "monthly")
+  recurringUntil DateTime? // Optional end date for recurrence
+  nextOccurrence DateTime? // Stores the next occurrence of the appointment
+
+  createdAt  DateTime  @default(now())
+  modifiedAt DateTime?
+}
+
+enum Status {
+  pending
+  approved
+  rejected
+  completed
+}
+
+// work on Reports
+
+model Reports {
+  reportId     String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String    @db.ObjectId
+  vetId        String    @db.ObjectId
+  petProfileId String    @db.ObjectId
+  createdAt    DateTime  @default(now())
+  modifiedAt   DateTime?
+
+  petProfile PetProfile        @relation(fields: [petProfileId], references: [id])
+  vet        Vets              @relation(fields: [vetId], references: [id])
+  user       Users             @relation(fields: [userId], references: [id])
+  diseases   ReportDisease[] // Relation to multiple diseases
+  treatments ReportTreatment[] // Relation to multiple treatments
+
+  temperature     Float?
+  heartRate       Int?
+  respiratoryRate Int?
+
+  symptoms         String[] // Report Symptoms
+  recommendations  String[] // Report Recommendations
+  ReportVitalSigns ReportVitalSigns[]
+}
+
+model ReportDisease {
+  id                 String        @id @default(auto()) @map("_id") @db.ObjectId
+  reportId           String        @db.ObjectId
+  diseaseName        String
+  cureTrial          String?
+  effectOfTrial      String?
+  effectiveness      Effectiveness
+  vetNotes           String?
+  treatmentStartDate DateTime
+  treatmentEndDate   DateTime?
+
+  report Reports @relation(fields: [reportId], references: [reportId], onDelete: Cascade)
+}
+
+model ReportTreatment {
+  id             String @id @default(auto()) @map("_id") @db.ObjectId
+  reportId       String @db.ObjectId
+  medicationName String
+  dosage         String
+  frequency      String
+  durationDays   Int
+  purpose        String
+
+  report Reports @relation(fields: [reportId], references: [reportId], onDelete: Cascade)
+}
+
+model ReportVitalSigns {
+  reportId        String @id @map("_id") @db.ObjectId
+  temperature     Float
+  heartRate       Int
+  respiratoryRate Int
+
+  report Reports @relation(fields: [reportId], references: [reportId], onDelete: Cascade)
+}
+
+// model ReportSymptoms {
+//   reportId String   @id @map("_id") @db.ObjectId
+//   symptoms String[]
+
+//   report Reports @relation(fields: [reportId], references: [reportId], onDelete: Cascade)
+// }
+
+// model ReportRecommendations {
+//   reportId        String   @id @map("_id") @db.ObjectId
+//   recommendations String[]
+
+//   report Reports @relation(fields: [reportId], references: [reportId], onDelete: Cascade)
+// }
+
+enum Effectiveness {
+  low
+  mid
+  high
+}
+
+model VaccinationRecords {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  petProfileId     String   @db.ObjectId
+  vaccineName      String
+  dateAdministered DateTime
+  nextDueDate      DateTime
+  manufacturer     String
+  batchLotNo       String
+  route            String
+  vetId            String   @db.ObjectId
+  createdAt        DateTime @default(now())
+
+  // Relations
+  petProfile PetProfile @relation(fields: [petProfileId], references: [id], onDelete: Cascade)
+  vet        Vets       @relation(fields: [vetId], references: [id])
+}
