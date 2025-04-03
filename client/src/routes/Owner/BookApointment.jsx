@@ -35,8 +35,8 @@ const BookAppointment = () => {
   const form = useForm({
     defaultValues: {
       reason: "",
-      appointmentDate: null, // Initialize as null
-      appointmentTime: "09:00", // Default time is 9 AM
+      appointmentDate: null,
+      appointmentTime: "09:00",
       recurring: false,
       recurringRule: "",
       recurringUntil: "",

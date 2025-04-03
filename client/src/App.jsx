@@ -22,6 +22,11 @@ import { AuthContext } from "@/context/AuthContext";
 import AppointmentControl from "@/routes/Admin/AppointmentControl";
 import BookApointment from "@/routes/Owner/BookApointment";
 import VetLayout from "@/routes/Layouts/VetLayout";
+import AnalyticBoard from "@/routes/Vet/AnalyticBoard";
+import AppointmentsVet from "@/routes/Vet/AppointmentsVet";
+import VaccinationsVet from "@/routes/Vet/VaccinationsVet";
+import NotificationVet from "@/routes/Vet/NotificationVet";
+import MessagesVet from "@/routes/Vet/MessagesVet";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -83,8 +88,28 @@ function App() {
       ),
       children: [
         {
-          path: "/vetDashboard",
+          path: "dashboard",
           element: <VetDashboard />,
+        },
+        {
+          path: "analytics",
+          element: <AnalyticBoard />,
+        },
+        {
+          path: "appointments",
+          element: <AppointmentsVet />,
+        },
+        {
+          path: "vaccinations",
+          element: <VaccinationsVet />,
+        },
+        {
+          path: "notifications",
+          element: <NotificationVet />,
+        },
+        {
+          path: "messages",
+          element: <MessagesVet />,
         },
       ],
     },
