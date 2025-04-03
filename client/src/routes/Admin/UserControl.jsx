@@ -245,7 +245,7 @@ const UserControl = () => {
         </Select>
 
         {/* Bulk Actions */}
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           <Button
             variant="destructive"
             size="sm"
@@ -254,10 +254,10 @@ const UserControl = () => {
           >
             Bulk Delete
           </Button>
-        </div>
+        </div> */}
 
         {/* Column Visibility Toggle */}
-        <DropdownMenu>
+        {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
               Columns
@@ -275,7 +275,7 @@ const UserControl = () => {
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu> */}
 
         {/* Table */}
         <Table>

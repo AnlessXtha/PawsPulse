@@ -22,6 +22,9 @@ import { Calendar } from "@/components/shadcn-components/ui/calendar";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVets, selectAllVets } from "@/redux/slices/vetSlice";
 import { useNavigate } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { appointmentSchema } from "@/schema/AppointmentSchema";
+import { addAppointment } from "@/redux/slices/appointmentSlice";
 
 const BookAppointment = () => {
   const navigate = useNavigate();
@@ -32,20 +35,71 @@ const BookAppointment = () => {
   const form = useForm({
     defaultValues: {
       reason: "",
-      appointmentDate: "",
+      appointmentDate: null, // Initialize as null
+      appointmentTime: "09:00", // Default time is 9 AM
       recurring: false,
       recurringRule: "",
       recurringUntil: "",
       vet: "",
     },
+    mode: "onTouched",
+    resolver: zodResolver(appointmentSchema),
   });
+
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = form;
+
+  console.log("errors", errors);
 
   useEffect(() => {
     dispatch(fetchVets());
   }, []);
 
-  const onSubmit = (data) => {
+  const onAppointmentSubmit = (data) => {
+    // Combine date and time into ISO string format
+    const combinedDateTime = new Date(
+      `${data.appointmentDate.toISOString().split("T")[0]}T${
+        data.appointmentTime
+      }:00.000Z`
+    );
+
     console.log("Appointment Data:", data);
+    console.log(
+      "Combined Appointment Date and Time:",
+      combinedDateTime.toISOString()
+    );
+    let recurringUntil;
+    if (data.recurring) {
+      switch (data.recurringUntil) {
+        case "month":
+          recurringUntil = new Date(combinedDateTime);
+          recurringUntil.setMonth(recurringUntil.getMonth() + 1);
+          break;
+        case "year":
+          recurringUntil = new Date(combinedDateTime);
+          recurringUntil.setFullYear(recurringUntil.getFullYear() + 1);
+          break;
+        default:
+          recurringUntil = null;
+          break;
+      }
+    }
+
+    const bookingData = {
+      reasonToVist: data.reason,
+      vetId: data.vet,
+      appointmentDate: combinedDateTime.toISOString(),
+      petProfileId: "67bd8ba335413c8f09cf9243",
+      durationMinutes: 60,
+      recurring: data.recurring,
+      recurrenceRule: data.recurringRule,
+      recurringUntil,
+    };
+
+    dispatch(addAppointment(bookingData));
+
     // navigate("/appointments");
   };
 
@@ -58,7 +112,7 @@ const BookAppointment = () => {
         {/* Grid Layout for Form Fields and Calendar */}
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onAppointmentSubmit)}
             className="grid grid-cols-[2fr_1fr] gap-6"
           >
             {/* Left Column: Form Fields */}
@@ -182,8 +236,9 @@ const BookAppointment = () => {
               />
             </div>
 
-            {/* Right Column: Calendar */}
-            <div className="flex flex-col justify-start">
+            {/* Right Column: Calendar and Time Picker */}
+            <div className="flex flex-col justify-start space-y-4">
+              {/* Calendar */}
               <FormField
                 control={form.control}
                 name="appointmentDate"
@@ -194,11 +249,49 @@ const BookAppointment = () => {
                     </FormLabel>
                     <FormControl>
                       <Calendar
+                        mode="single"
                         selected={field.value}
-                        onChange={field.onChange}
+                        onSelect={field.onChange}
                         minDate={new Date()}
                         className="w-full"
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Time Picker */}
+              <FormField
+                control={form.control}
+                name="appointmentTime"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[18px]">
+                      Appointment Time
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a Time" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 10 }, (_, i) => {
+                            const hour = i + 9; // Start at 9 AM
+                            return (
+                              <SelectItem
+                                key={hour}
+                                value={`${hour.toString().padStart(2, "0")}:00`}
+                              >
+                                {`${hour}:00`}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

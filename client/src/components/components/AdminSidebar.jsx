@@ -15,7 +15,7 @@ import { SidebarContext } from "@/context/SidebarContext";
 import { AuthContext } from "@/context/AuthContext";
 import { handleLogout } from "@/lib/auth";
 
-const Sidebar = () => {
+const AdminSidebar = () => {
   const { isSidebarOpen, toggleSidebar } = useContext(SidebarContext);
   const navigate = useNavigate();
   const { updateUser } = useContext(AuthContext);
@@ -93,4 +93,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default AdminSidebar;

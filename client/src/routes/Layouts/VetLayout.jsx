@@ -3,13 +3,14 @@ import { Outlet } from "react-router-dom"; // Renders child routes
 import { useContext } from "react";
 import { SidebarContext } from "@/context/SidebarContext"; // Import the AdminSidebar Context
 import AdminSidebar from "@/components/components/AdminSidebar";
+import VetSidebar from "@/components/components/VetSidebar";
 
-const AdminLayout = () => {
+const VetLayout = () => {
   const { isSidebarOpen } = useContext(SidebarContext); // Access the sidebar state
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar />
+      <VetSidebar />
 
       <main
         className={`flex-1 p-6 ${
@@ -22,4 +23,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default VetLayout;

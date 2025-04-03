@@ -21,6 +21,7 @@ import { useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import AppointmentControl from "@/routes/Admin/AppointmentControl";
 import BookApointment from "@/routes/Owner/BookApointment";
+import VetLayout from "@/routes/Layouts/VetLayout";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -71,7 +72,16 @@ function App() {
           path: "/about",
           element: <OurServicesPage />,
         },
-
+      ],
+    },
+    {
+      path: "/vet",
+      element: (
+        <SidebarProvider>
+          <VetLayout />
+        </SidebarProvider>
+      ),
+      children: [
         {
           path: "/vetDashboard",
           element: <VetDashboard />,
