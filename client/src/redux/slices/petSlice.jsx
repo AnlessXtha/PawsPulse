@@ -9,11 +9,12 @@ const petApiClient = createApiClient(BASE_USER_URL);
 const initialState = {
   pets: [],
   singlePet: null,
+  currentPet: null,
   status: "idle",
   error: null,
 };
 
-export const fetchPets = createAsyncThunk("profiles/fetchPets", async () => {
+export const fetchPets = createAsyncThunk("pets/fetchPets", async () => {
   try {
     const response = await petApiClient.get("/");
 
@@ -30,6 +31,36 @@ export const fetchPets = createAsyncThunk("profiles/fetchPets", async () => {
     throw error;
   }
 });
+
+export const fetchSinglePet = createAsyncThunk(
+  "pets/fetchSinglePet",
+  async (id) => {
+    try {
+      const response = await petApiClient.get(`/${id}`);
+      console.log("response: ", response.data);
+
+      return response.data.pet;
+    } catch (error) {
+      console.log("Error: ", error);
+      throw error;
+    }
+  }
+);
+
+export const fetchSinglePetByUserId = createAsyncThunk(
+  "pets/fetchSinglePetByUserId",
+  async (id) => {
+    try {
+      const response = await petApiClient.get(`/user/${id}`);
+      console.log("response: ", response.data);
+
+      return response.data.pet;
+    } catch (error) {
+      console.log("Error: ", error);
+      throw error;
+    }
+  }
+);
 
 export const petslice = createSlice({
   name: "pets",
@@ -59,11 +90,19 @@ export const petslice = createSlice({
       .addCase(fetchPets.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Unknown error";
+      })
+      .addCase(fetchSinglePet.fulfilled, (state, action) => {
+        state.singlePet = action.payload;
+      })
+      .addCase(fetchSinglePetByUserId.fulfilled, (state, action) => {
+        state.currentPet = action.payload;
       });
   },
 });
 
 export const selectAllPets = (state) => state.pets.pets;
+export const getSinglePet = (state) => state.pets.singlePet;
+export const getSinglePetByUserId = (state) => state.pets.currentPet;
 export const getPetsStatus = (state) => state.pets.status;
 export const getPetsError = (state) => state.pets.error;
 

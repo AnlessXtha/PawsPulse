@@ -4,6 +4,7 @@ import {
   getPet,
   updatePet,
   deletePet,
+  getPetByUserId,
 } from "../controllers/pet.controller.js";
 import { shouldBeAdmin, verifyToken } from "../middleware/authMiddleware.js";
 // import { verifyToken } from "../middleware/verifyToken.js";
@@ -13,6 +14,8 @@ const router = express.Router();
 router.get("/", getPets);
 
 router.get("/:id", getPet);
+
+router.get("/user/:id", getPetByUserId);
 
 router.put("/:id", verifyToken, updatePet);
 

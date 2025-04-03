@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/shadcn-components/ui/select";
 import { useForm } from "react-hook-form";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Calendar } from "@/components/shadcn-components/ui/calendar";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchVets, selectAllVets } from "@/redux/slices/vetSlice";
@@ -25,11 +25,23 @@ import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { appointmentSchema } from "@/schema/AppointmentSchema";
 import { addAppointment } from "@/redux/slices/appointmentSlice";
+import { AuthContext } from "@/context/AuthContext";
+import {
+  fetchSinglePetByUserId,
+  getSinglePetByUserId,
+} from "@/redux/slices/petSlice";
 
 const BookAppointment = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const vets = useSelector(selectAllVets);
+
+  const pet = useSelector(getSinglePetByUserId);
+
+  console.log(pet, "Pet Data");
+
+  const { currentUser } = useContext(AuthContext);
+  console.log(currentUser, "Current User");
 
   const [isRecurring, setIsRecurring] = useState(false);
   const form = useForm({
@@ -51,26 +63,21 @@ const BookAppointment = () => {
     formState: { errors },
   } = form;
 
-  console.log("errors", errors);
+  // console.log("errors", errors);
 
   useEffect(() => {
     dispatch(fetchVets());
   }, []);
 
   const onAppointmentSubmit = (data) => {
-    // Combine date and time into ISO string format
+    dispatch(fetchSinglePetByUserId(currentUser.id));
+
     const combinedDateTime = new Date(
       `${data.appointmentDate.toISOString().split("T")[0]}T${
         data.appointmentTime
       }:00.000Z`
     );
 
-    console.log("Appointment Data:", data);
-    console.log("Appointment Date:", data.appointmentDate.toISOString());
-    console.log(
-      "Combined Appointment Date and Time:",
-      combinedDateTime.toISOString()
-    );
     let recurringUntil;
     if (data.recurring) {
       switch (data.recurringUntil) {
@@ -92,7 +99,7 @@ const BookAppointment = () => {
       reasonToVist: data.reason,
       vetId: data.vet,
       appointmentDate: combinedDateTime,
-      petProfileId: "67bd8ba335413c8f09cf9243",
+      petProfileId: pet.id,
       durationMinutes: 60,
       recurring: data.recurring,
       recurrenceRule: data.recurringRule,
@@ -101,7 +108,7 @@ const BookAppointment = () => {
 
     console.log(bookingData, "Booking Data");
 
-    // dispatch(addAppointment(bookingData));
+    dispatch(addAppointment(bookingData));
 
     // navigate("/appointments");
   };

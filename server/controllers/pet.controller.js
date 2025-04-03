@@ -20,8 +20,50 @@ export const getPets = async (req, res) => {
 };
 
 export const getPet = async (req, res) => {
+  const petId = req.params.id;
+
   try {
-    res.status(200).json({ message: "Pets retrieved successfully." });
+    const pet = await prisma.petProfile.findUnique({
+      where: {
+        id: petId,
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+    res.status(200).json({ message: "Pet retrieved successfully.", pet });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to get pets." });
+  }
+};
+
+export const getPetByUserId = async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    const pets = await prisma.petProfile.findUnique({
+      where: {
+        userId,
+      },
+      include: {
+        user: {
+          select: {
+            username: true,
+          },
+        },
+      },
+    });
+
+    // if (!pets.length) {
+    //   return res.status(404).json({ message: "No pets found for this user." });
+    // }
+
+    res.status(200).json({ message: "Pet retrieved successfully.", pet: pets });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Failed to get pets." });
