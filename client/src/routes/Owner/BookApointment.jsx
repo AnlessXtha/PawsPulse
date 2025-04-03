@@ -46,85 +46,133 @@ const BookAppointment = () => {
 
   const onSubmit = (data) => {
     console.log("Appointment Data:", data);
-    navigate("/appointments");
+    // navigate("/appointments");
   };
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="w-[800px] bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-6">Book an Appointment</h2>
+      <div className="w-[1000px] bg-white p-8 rounded-lg shadow-md">
+        {/* Updated Heading Size */}
+        <h2 className="text-[28px] font-bold mb-6">Book an Appointment</h2>
+
+        {/* Grid Layout for Form Fields and Calendar */}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="grid grid-cols-2 gap-6"
+            className="grid grid-cols-[2fr_1fr] gap-6"
           >
-            <FormField
-              control={form.control}
-              name="reason"
-              render={({ field }) => (
-                <FormItem className="col-span-2">
-                  <FormLabel>Reason to Visit</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Describe the reason..." {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="appointmentDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Appointment Date</FormLabel>
-                  <FormControl>
-                    <Calendar
-                      selected={field.value}
-                      onChange={field.onChange}
-                      minDate={new Date()}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="recurring"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Make it Recurring?</FormLabel>
-                  <FormControl>
-                    <Checkbox
-                      checked={isRecurring}
-                      onCheckedChange={(checked) => {
-                        setIsRecurring(checked);
-                        field.onChange(checked);
-                      }}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            {isRecurring && (
+            {/* Left Column: Form Fields */}
+            <div className="space-y-6">
               <FormField
                 control={form.control}
-                name="recurringRule"
+                name="reason"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Recurring Rule</FormLabel>
+                    <FormLabel className="text-[18px]">
+                      Reason to Visit
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="Describe the reason..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="recurring"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[18px]">
+                      Make it Recurring?
+                    </FormLabel>
+                    <FormControl>
+                      <Checkbox
+                        checked={isRecurring}
+                        onCheckedChange={(checked) => {
+                          setIsRecurring(checked);
+                          field.onChange(checked);
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {isRecurring && (
+                <FormField
+                  control={form.control}
+                  name="recurringRule"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[18px]">
+                        Recurring Rule
+                      </FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="annually">Annually</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                            <SelectItem value="bimonthly">
+                              Bi-Monthly
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {isRecurring && (
+                <FormField
+                  control={form.control}
+                  name="recurringUntil"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-[18px]">
+                        Recurring Until
+                      </FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="month">For a Month</SelectItem>
+                            <SelectItem value="year">For a Year</SelectItem>
+                            <SelectItem value="date">Pick a Date</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <FormField
+                control={form.control}
+                name="vet"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-[18px]">Select a Vet</FormLabel>
                     <FormControl>
                       <Select onValueChange={field.onChange}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="annually">Annually</SelectItem>
-                          <SelectItem value="monthly">Monthly</SelectItem>
-                          <SelectItem value="bimonthly">Bi-Monthly</SelectItem>
+                          {vets.map((vet) => (
+                            <SelectItem key={vet.id} value={vet.id}>
+                              Dr. {vet.firstName} {vet.lastName}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </FormControl>
@@ -132,58 +180,33 @@ const BookAppointment = () => {
                   </FormItem>
                 )}
               />
-            )}
+            </div>
 
-            {isRecurring && (
+            {/* Right Column: Calendar */}
+            <div className="flex flex-col justify-start">
               <FormField
                 control={form.control}
-                name="recurringUntil"
+                name="appointmentDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Recurring Until</FormLabel>
+                    <FormLabel className="text-[18px]">
+                      Appointment Date
+                    </FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="month">For a Month</SelectItem>
-                          <SelectItem value="year">For a Year</SelectItem>
-                          <SelectItem value="date">Pick a Date</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Calendar
+                        selected={field.value}
+                        onChange={field.onChange}
+                        minDate={new Date()}
+                        className="w-full"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            )}
+            </div>
 
-            <FormField
-              control={form.control}
-              name="vet"
-              render={({ field }) => (
-                <FormItem className="col-span-2">
-                  <FormLabel>Select a Vet</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {vets.map((vet) => (
-                          <SelectItem key={vet.id} value={vet.id}>
-                            Dr. {vet.firstName} {vet.lastName}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+            {/* Action Buttons */}
             <div className="col-span-2 flex justify-between mt-4">
               <Button
                 type="button"

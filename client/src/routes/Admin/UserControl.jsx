@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -42,7 +42,6 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/shadcn-components/ui/select";
-import { DataTableDemo } from "@/routes/Admin/balnk";
 
 const UserControl = () => {
   const navigate = useNavigate();
@@ -313,7 +312,7 @@ const UserControl = () => {
         </Table>
       </div>
       {/* Pagination Controls */}
-      
+
       {/* Dialog for Actions */}
       <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
         <DialogContent>
