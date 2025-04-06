@@ -1,29 +1,22 @@
 import { createApiClient } from "@/lib/createApiClient";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-// Base URL for the appointment API
 const BASE_APPOINTMENT_URL = "http://localhost:8805/api/appointments";
-
-// Create an API client for the appointment endpoint
 const appointmentApiClient = createApiClient(BASE_APPOINTMENT_URL);
 
-// Initial state for the appointment slice
 const initialState = {
-  appointments: [], // List of all appointments
-  singleAppointment: null, // Single appointment details (if needed)
-  status: "idle", // Status of the async operations: 'idle', 'loading', 'successful', 'failed'
-  error: null, // Error message if any
+  appointments: [],
+  singleAppointment: null,
+  status: "idle",
+  error: null,
 };
 
-/**
- * Async thunk to fetch all appointments
- */
 export const fetchAppointments = createAsyncThunk(
   "appointments/fetchAppointments",
   async () => {
     try {
       const response = await appointmentApiClient.get("/");
-      return [...response.data.appointments]; // Assuming the API returns an array of appointments
+      return [...response.data.newAppointments];
     } catch (error) {
       console.error("Error fetching appointments:", error);
       throw error;
@@ -31,15 +24,28 @@ export const fetchAppointments = createAsyncThunk(
   }
 );
 
-/**
- * Async thunk to create a new appointment
- */
+export const fetchSingleAppointment = createAsyncThunk(
+  "pets/fetchSingleAppointment",
+  async (id) => {
+    try {
+      const response = await appointmentApiClient.get(`/${id}`);
+
+      console.log("Appointment response: ", response.data);
+
+      return response.data.appointment;
+    } catch (error) {
+      console.log("Error: ", error);
+      throw error;
+    }
+  }
+);
+
 export const addAppointment = createAsyncThunk(
   "appointments/addAppointment",
   async (newAppointmentData, { rejectWithValue }) => {
     try {
       const response = await appointmentApiClient.post("/", newAppointmentData);
-      return response.data; // Assuming the API returns the created appointment
+      return response.data;
     } catch (error) {
       console.error("Error adding appointment:", error);
       return rejectWithValue(
@@ -49,45 +55,44 @@ export const addAppointment = createAsyncThunk(
   }
 );
 
-// Create the appointment slice
 export const appointmentSlice = createSlice({
   name: "appointments",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch appointments
       .addCase(fetchAppointments.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchAppointments.fulfilled, (state, action) => {
         state.status = "successful";
-        state.appointments = action.payload; // Update the appointments list
+        state.appointments = action.payload;
       })
       .addCase(fetchAppointments.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Unknown error";
       })
-
-      // Add appointment
       .addCase(addAppointment.pending, (state) => {
         state.status = "loading";
       })
       .addCase(addAppointment.fulfilled, (state, action) => {
         state.status = "successful";
-        state.appointments.push(action.payload); // Add the new appointment to the list
+        state.appointments.push(action.payload);
       })
       .addCase(addAppointment.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Failed to add appointment";
+      })
+      .addCase(fetchSingleAppointment.fulfilled, (state, action) => {
+        state.singleAppointment = action.payload;
       });
   },
 });
 
-// Selectors
 export const selectAllAppointments = (state) => state.appointments.appointments;
+export const getSingleAppointment = (state) =>
+  state.appointments.singleAppointment;
 export const getAppointmentsStatus = (state) => state.appointments.status;
 export const getAppointmentsError = (state) => state.appointments.error;
 
-// Export the reducer
 export default appointmentSlice.reducer;

@@ -27,6 +27,7 @@ import AppointmentsVet from "@/routes/Vet/AppointmentsVet";
 import VaccinationsVet from "@/routes/Vet/VaccinationsVet";
 import NotificationVet from "@/routes/Vet/NotificationVet";
 import MessagesVet from "@/routes/Vet/MessagesVet";
+import RedirectBasedOnRole from "@/routes/RedirectBasedOnRole";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -65,16 +66,34 @@ function App() {
         },
       ],
     },
+    // {
+    //   path: "/",
+    //   element: <Layout />,
+    //   children: [
+    //     {
+    //       path: "/",
+    //       element: <HomePage />,
+    //     },
+    //     {
+    //       path: "/about",
+    //       element: <OurServicesPage />,
+    //     },
+    //   ],
+    // },
     {
       path: "/",
       element: <Layout />,
       children: [
         {
-          path: "/",
-          element: <HomePage />,
+          index: true,
+          element: <RedirectBasedOnRole />,
         },
+        // {
+        //   path: "home",
+        //   element: <HomePage />,
+        // },
         {
-          path: "/about",
+          path: "about",
           element: <OurServicesPage />,
         },
       ],

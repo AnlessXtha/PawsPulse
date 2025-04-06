@@ -8,7 +8,31 @@ export const getAppointments = async (req, res) => {
   try {
     let appointments;
     if (tokenUserType === "admin") {
-      appointments = await prisma.appointments.findMany();
+      appointments = await prisma.appointments.findMany({
+        include: {
+          petProfile: {
+            select: {
+              petName: true,
+              user: {
+                select: {
+                  username: true,
+                },
+              },
+            },
+          },
+          // vet: true,
+        },
+      });
+
+      let newAppointments = {
+        ...appointments,
+        vet: appointments.vet || undefined,
+      };
+
+      return res.status(200).json({
+        newAppointments,
+        message: "Appointments retrieved successfully.",
+      });
     } else if (tokenUserType === "vet") {
       appointments = await prisma.appointments.findMany({
         where: { vetId: tokenUserId },
@@ -211,7 +235,7 @@ export const updateAppointment = async (req, res) => {
 };
 
 export const deleteAppointment = async (req, res) => {
-  const { appointmentId } = req.params;
+  const { id: appointmentId } = req.params;
   try {
     await prisma.appointments.delete({ where: { appointmentId } });
     res.status(200).json({ message: "Appointment deleted successfully." });

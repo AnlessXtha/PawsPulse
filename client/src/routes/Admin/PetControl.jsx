@@ -32,7 +32,9 @@ const PetControl = () => {
   const petStatus = useSelector(getPetsStatus);
   const allPets = useSelector(selectAllPets);
 
-  const [selectedUser, setSelectedUser] = useState(null);
+  console.log(allPets, "allPets");
+
+  const [selectedPet, setSelectedPet] = useState(null);
   const [actionType, setActionType] = useState(null);
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
@@ -59,7 +61,7 @@ const PetControl = () => {
     {
       id: "username", // Unique ID for the column
       header: "User Name",
-      cell: ({ row }) => row.original.user?.username || "Unknown", // Access nested user.username
+      cell: ({ row }) => row.original.user?.username || "Unknown", 
     },
     {
       accessorKey: "createdAt",
@@ -111,7 +113,7 @@ const PetControl = () => {
   });
 
   const handleActionClick = (user, type) => {
-    setSelectedUser(user);
+    setSelectedPet(user);
     setActionType(type);
   };
 

@@ -60,10 +60,9 @@ const VetControl = () => {
     }
   }, [vetStatus, dispatch]);
 
-  console.log(allVets, "allVets");
+  // console.log(allVets, "allVets");
 
   const columns = [
-    // { accessorKey: "id", header: "ID" },
     {
       id: "serialNo",
       header: "S.N.",
