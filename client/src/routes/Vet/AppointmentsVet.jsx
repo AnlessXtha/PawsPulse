@@ -21,6 +21,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/shadcn-components/ui/table";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/shadcn-components/ui/popover";
+import { Button } from "@/components/shadcn-components/ui/button";
+import VetNoteCell from "@/routes/Vet/components/VetNotesCell";
 
 const AppointmentsVet = () => {
   const dispatch = useDispatch();
@@ -127,11 +134,10 @@ const AppointmentsVet = () => {
       },
     },
     {
-      accessorKey: "vetNotes",
+      id: "vetNotes",
       header: "Vet Notes",
-      cell: ({ row }) => row.getValue("vetNotes") || "—",
+      cell: ({ row }) => <VetNoteCell appointment={row.original} />,
     },
-   
   ];
 
   const table = useReactTable({
