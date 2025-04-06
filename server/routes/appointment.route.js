@@ -10,7 +10,7 @@ import {
 
 const router = express.Router();
 
-router.get("/", verifyToken, shouldBeAdmin, getAppointments);
+router.get("/", verifyToken, getAppointments);
 router.get("/:id", verifyToken, getAppointment);
 router.post("/", verifyToken, addAppointment);
 router.put("/:id", verifyToken, updateAppointment);

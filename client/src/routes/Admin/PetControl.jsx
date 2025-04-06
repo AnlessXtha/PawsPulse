@@ -59,9 +59,9 @@ const PetControl = () => {
     { accessorKey: "petBreed", header: "Breed" },
     { accessorKey: "petAge", header: "Pet Age" },
     {
-      id: "username", // Unique ID for the column
+      id: "username",
       header: "User Name",
-      cell: ({ row }) => row.original.user?.username || "Unknown", 
+      cell: ({ row }) => row.original.user?.username || "Unknown",
     },
     {
       accessorKey: "createdAt",

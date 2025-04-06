@@ -51,15 +51,24 @@ const AppointmentControl = () => {
       header: "S.N.",
       cell: ({ row }) => row.index + 1,
     },
-    // { accessorKey: "appointmentId", header: "Appointment ID" },
+
     {
-      accessorKey: "vetId",
-      header: "Vet ID",
+      id: "vetName",
+      header: "Vet Name",
+      cell: ({ row }) => {
+        const vetUser = row.original.vet?.user;
+        return vetUser
+          ? `Dr. ${vetUser.firstName} ${vetUser.lastName}`
+          : "Unknown";
+      },
     },
+
     {
-      accessorKey: "petProfileId",
-      header: "Pet Profile ID",
+      id: "petName",
+      header: "Pet Name",
+      cell: ({ row }) => row.original.petProfile?.petName || "Unknown",
     },
+
     {
       accessorKey: "reasonToVist",
       header: "Reason to Visit",

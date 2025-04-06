@@ -5,6 +5,8 @@ export const getAppointments = async (req, res) => {
   const tokenUserType = req.userType;
   const tokenUserId = req.userId;
 
+  console.log("tokenUserType", tokenUserType);
+
   try {
     let appointments;
     if (tokenUserType === "admin") {
@@ -20,23 +22,61 @@ export const getAppointments = async (req, res) => {
               },
             },
           },
-          // vet: true,
+          vet: {
+            // select: {},
+            include: {
+              user: {
+                select: {
+                  username: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
         },
       });
 
-      let newAppointments = {
-        ...appointments,
-        vet: appointments.vet || undefined,
-      };
+      appointments.map((appointment) => ({
+        ...appointment,
+        vet: appointment.vet || undefined,
+      }));
 
       return res.status(200).json({
-        newAppointments,
+        appointments,
         message: "Appointments retrieved successfully.",
       });
     } else if (tokenUserType === "vet") {
-      appointments = await prisma.appointments.findMany({
-        where: { vetId: tokenUserId },
+      const vet = await prisma.users.findUnique({
+        where: { id: tokenUserId },
+        include: {
+          vet: true,
+        },
       });
+
+      let vetDetails = vet.vet;
+      console.log(vetDetails, "vet");
+
+      if (vet) {
+        appointments = await prisma.appointments.findMany({
+          where: { vetId: vetDetails.id },
+          include: {
+            petProfile: {
+              select: {
+                petName: true,
+                user: {
+                  select: {
+                    username: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+      } else {
+        // handle vet not found
+        throw new Error("Vet not found for the given user ID.");
+      }
     } else {
       return res.status(403).json({ message: "Unauthorized action." });
     }
