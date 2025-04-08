@@ -28,6 +28,7 @@ import VaccinationsVet from "@/routes/Vet/VaccinationsVet";
 import NotificationVet from "@/routes/Vet/NotificationVet";
 import MessagesVet from "@/routes/Vet/MessagesVet";
 import RedirectBasedOnRole from "@/routes/RedirectBasedOnRole";
+import { VetEventCalendar } from "@/routes/Vet/AppointmentsVetT";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -116,7 +117,7 @@ function App() {
         },
         {
           path: "appointments",
-          element: <AppointmentsVet />,
+          element: <VetEventCalendar />,
         },
         {
           path: "vaccinations",

@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/shadcn-components/ui/popover";
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/shadcn-components/ui/dialog";
 import { Button } from "@/components/shadcn-components/ui/button";
 
 const VetNoteCell = ({ appointment }) => {
@@ -11,44 +14,47 @@ const VetNoteCell = ({ appointment }) => {
   const [note, setNote] = useState(appointment.vetNotes || "");
 
   const handleSave = () => {
-    // TODO: Replace this with actual API call
     console.log("Save vet note for", appointment.appointmentId, "Note:", note);
-    setOpen(false);
+    setOpen(false); // close the dialog
   };
 
   return (
     <div className="flex items-center gap-2">
       <span>{note || "—"}</span>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
           <Button
             variant="outline"
             size="sm"
             onClick={() => {
-              console.log("showing popover");
-              setOpen(true); // make sure to open it manually on click
+              console.log("opening dialog");
+              setOpen(true);
             }}
           >
             {note ? "Update" : "Add"}
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-64 space-y-2">
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {note ? "Update Vet Notes" : "Add Vet Notes"}
+            </DialogTitle>
+          </DialogHeader>
           <textarea
-            className="w-full p-2 border rounded"
+            className="w-full mt-4 p-2 border rounded"
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            rows={4}
+            rows={5}
+            placeholder="Write your notes here..."
           />
-          <div className="flex justify-end gap-2">
-            <Button size="sm" variant="outline" onClick={() => setOpen(false)}>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button size="sm" onClick={handleSave}>
-              Save
-            </Button>
-          </div>
-        </PopoverContent>
-      </Popover>
+            <Button onClick={handleSave}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
