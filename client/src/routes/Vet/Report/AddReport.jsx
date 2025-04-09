@@ -70,7 +70,7 @@ const AddReport = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 bg-white rounded shadow">
+    <div className="max-w-full mx-auto px-6 py-2 bg-white rounded shadow">
       <h2 className="text-2xl font-bold mb-6">Create a Report</h2>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -80,7 +80,7 @@ const AddReport = () => {
               name="petName"
               control={control}
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="gap-2">
                   <FormLabel>Pet Name</FormLabel>
                   <FormControl>
                     <Input disabled {...field} />
@@ -92,7 +92,7 @@ const AddReport = () => {
               name="ownerName"
               control={control}
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="gap-2">
                   <FormLabel>Owner</FormLabel>
                   <FormControl>
                     <Input disabled {...field} />
@@ -102,13 +102,15 @@ const AddReport = () => {
             />
           </div>
 
+          <hr className="mb-4 border-gray-300" />
+
           {/* Vitals */}
           <div className="grid grid-cols-3 gap-4">
             <FormField
               name="temperature"
               control={control}
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="gap-2">
                   <FormLabel>Temperature (°C)</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
@@ -120,7 +122,7 @@ const AddReport = () => {
               name="heartRate"
               control={control}
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="gap-2">
                   <FormLabel>Heart Rate</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
@@ -132,7 +134,7 @@ const AddReport = () => {
               name="respiratoryRate"
               control={control}
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="gap-2">
                   <FormLabel>Respiratory Rate</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
@@ -148,7 +150,7 @@ const AddReport = () => {
               name="symptoms.0"
               control={control}
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="gap-2">
                   <FormLabel>Symptoms</FormLabel>
                   <FormControl>
                     <Textarea {...field} placeholder="Comma-separated" />
@@ -160,7 +162,7 @@ const AddReport = () => {
               name="recommendations.0"
               control={control}
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="gap-2">
                   <FormLabel>Recommendations</FormLabel>
                   <FormControl>
                     <Textarea {...field} placeholder="Comma-separated" />
@@ -183,7 +185,7 @@ const AddReport = () => {
                     name={`diseases.${index}.diseaseName`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="gap-2">
                         <FormLabel>Disease Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -195,7 +197,7 @@ const AddReport = () => {
                     name={`diseases.${index}.cureTrial`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="gap-2">
                         <FormLabel>Cure Trial</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -207,7 +209,7 @@ const AddReport = () => {
                     name={`diseases.${index}.effectOfTrial`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="gap-2">
                         <FormLabel>Effect of Trial</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -219,7 +221,7 @@ const AddReport = () => {
                     name={`diseases.${index}.effectiveness`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="gap-2">
                         <FormLabel>Effectiveness</FormLabel>
                         <FormControl>
                           <Select
@@ -243,7 +245,7 @@ const AddReport = () => {
                     name={`diseases.${index}.vetNotes`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="gap-2">
                         <FormLabel>Vet Notes</FormLabel>
                         <FormControl>
                           <Textarea {...field} />
@@ -256,7 +258,7 @@ const AddReport = () => {
                       name={`diseases.${index}.treatmentStartDate`}
                       control={control}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="gap-2">
                           <FormLabel>Start Date</FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
@@ -268,7 +270,7 @@ const AddReport = () => {
                       name={`diseases.${index}.treatmentEndDate`}
                       control={control}
                       render={({ field }) => (
-                        <FormItem>
+                        <FormItem className="gap-2">
                           <FormLabel>End Date</FormLabel>
                           <FormControl>
                             <Input type="date" {...field} />
@@ -313,7 +315,7 @@ const AddReport = () => {
                     name={`treatments.${index}.medicationName`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="gap-2">
                         <FormLabel>Medication Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -325,7 +327,7 @@ const AddReport = () => {
                     name={`treatments.${index}.dosage`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="gap-2">
                         <FormLabel>Dosage</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -337,7 +339,7 @@ const AddReport = () => {
                     name={`treatments.${index}.frequency`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="gap-2">
                         <FormLabel>Frequency</FormLabel>
                         <FormControl>
                           <Input {...field} />
@@ -349,7 +351,7 @@ const AddReport = () => {
                     name={`treatments.${index}.durationDays`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="gap-2">
                         <FormLabel>Duration (Days)</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
@@ -361,7 +363,7 @@ const AddReport = () => {
                     name={`treatments.${index}.purpose`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="gap-2">
                         <FormLabel>Purpose</FormLabel>
                         <FormControl>
                           <Input {...field} />
