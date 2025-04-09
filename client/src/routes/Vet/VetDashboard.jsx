@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  CartesianGrid,
 } from "recharts";
 import { Card, CardContent } from "@/components/shadcn-components/ui/card";
 
@@ -23,7 +24,7 @@ const stats = [
 const patientGrowthData = [
   { month: "Jan", patients: 100 },
   { month: "Feb", patients: 180 },
-  { month: "Mar", patients: 250 },
+  { month: "Mar", patients: 150 },
   { month: "Apr", patients: 320 },
 ];
 
@@ -78,10 +79,11 @@ const VetDashboard = () => {
           <h2 className="text-lg font-bold mb-2">Appointment Trends</h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={appointmentTrends}>
+              <CartesianGrid vertical={false} />
               <XAxis dataKey="day" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="count" fill="#2196f3" />
+              <Bar dataKey="count" fill="#2196f3" radius={8} />
             </BarChart>
           </ResponsiveContainer>
         </Card>

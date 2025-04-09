@@ -38,15 +38,15 @@ const VetSidebar = () => {
         isSidebarOpen ? "w-64 p-4" : "w-16 py-4 px-2"
       } fixed top-0 left-0 z-10 `}
     >
-      <div className={`${!isSidebarOpen && "flex flex-col items-center"}`}>
+      <div className={`${!isSidebarOpen && "flex flex-col items-center "} `}>
         <Button
           variant="ghost"
-          className="mb-6 flex items-center"
+          className="mb-6 flex items-center hover:bg-[#8C323F] hover:text-white"
           onClick={toggleSidebar}
         >
           <Menu className="w-6 h-6 text-white" />
           {isSidebarOpen && (
-            <span className="ml-3 text-2xl font-bold tracking-wide">
+            <span className="ml-3 text-2xl font-bold tracking-wide ">
               PawsPulse
             </span>
           )}

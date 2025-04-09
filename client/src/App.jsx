@@ -23,12 +23,13 @@ import AppointmentControl from "@/routes/Admin/AppointmentControl";
 import BookApointment from "@/routes/Owner/BookApointment";
 import VetLayout from "@/routes/Layouts/VetLayout";
 import AnalyticBoard from "@/routes/Vet/AnalyticBoard";
-import AppointmentsVet from "@/routes/Vet/AppointmentsVet";
+// import AppointmentsVet from "@/routes/Vet/AppointmentsVetOld";
 import VaccinationsVet from "@/routes/Vet/VaccinationsVet";
 import NotificationVet from "@/routes/Vet/NotificationVet";
 import MessagesVet from "@/routes/Vet/MessagesVet";
 import RedirectBasedOnRole from "@/routes/RedirectBasedOnRole";
-import { VetEventCalendar } from "@/routes/Vet/AppointmentsVetT";
+import AppointmentsVet from "@/routes/Vet/AppointmentsVet";
+import AddReport from "@/routes/Vet/Report/AddReport";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -117,7 +118,17 @@ function App() {
         },
         {
           path: "appointments",
-          element: <VetEventCalendar />,
+          element: <AppointmentsVet />,
+          // children: [
+          //   {
+          //     path: "addReport",
+          //     element: <AddReport />,
+          //   },
+          // ],
+        },
+        {
+          path: "appointments/addReport",
+          element: <AddReport />,
         },
         {
           path: "vaccinations",

@@ -58,6 +58,23 @@ export const addAppointment = createAsyncThunk(
   }
 );
 
+export const updateAppointment = createAsyncThunk(
+  "appointments/updateAppointment",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      console.log("updateAppointmentData", id, data);
+
+      const response = await appointmentApiClient.put(`/${id}`, data);
+      return response.data;
+    } catch (error) {
+      console.error("Error adding appointment:", error);
+      return rejectWithValue(
+        error.response?.data || "Failed to add appointment"
+      );
+    }
+  }
+);
+
 export const appointmentSlice = createSlice({
   name: "appointments",
   initialState,

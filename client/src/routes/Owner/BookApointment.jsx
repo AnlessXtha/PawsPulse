@@ -96,7 +96,7 @@ const BookAppointment = () => {
     }
 
     const bookingData = {
-      reasonToVist: data.reason,
+      reasonToVisit: data.reason,
       vetId: data.vet,
       appointmentDate: combinedDateTime,
       petProfileId: pet.id,
