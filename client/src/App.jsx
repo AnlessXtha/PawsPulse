@@ -23,7 +23,6 @@ import AppointmentControl from "@/routes/Admin/AppointmentControl";
 import BookApointment from "@/routes/Owner/BookApointment";
 import VetLayout from "@/routes/Layouts/VetLayout";
 import AnalyticBoard from "@/routes/Vet/AnalyticBoard";
-// import AppointmentsVet from "@/routes/Vet/AppointmentsVetOld";
 import VaccinationsVet from "@/routes/Vet/VaccinationsVet";
 import NotificationVet from "@/routes/Vet/NotificationVet";
 import MessagesVet from "@/routes/Vet/MessagesVet";

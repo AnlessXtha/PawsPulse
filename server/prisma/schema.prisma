@@ -74,7 +74,7 @@ model Appointments {
   vet        Vets       @relation(fields: [vetId], references: [id])
   petProfile PetProfile @relation(fields: [petProfileId], references: [id])
 
-  reasonToVist       String
+  reasonToVisit      String
   appointmentDate    DateTime
   durationMinutes    Int?
   status             Status

@@ -225,7 +225,7 @@ export const updateAppointment = async (req, res) => {
       include: { vet: true, petProfile: true },
     });
 
-    console.log("appointment", appointment);
+    // console.log("appointment", appointment);
 
     // if (!appointment) {
     //   return res.status(404).json({ message: "Appointment not found." });
@@ -234,37 +234,50 @@ export const updateAppointment = async (req, res) => {
     const ownerId = appointment.petProfile.userId;
     const vetId = appointment.vet.userId;
 
-    if (ownerId !== tokenUserId || vetId !== tokenUserId) {
+    if (ownerId !== tokenUserId && vetId !== tokenUserId) {
       return res.status(403).json({ message: "Unauthorized action." });
     }
 
-    if (tokenUserType === "owner" && appointment.status === "pending") {
-      const { status, cancellationReason } = req.body;
-      if (status === "cancelled") {
+    const { status, vetNotes, rejectionReason, cancellationReason } = req.body;
+
+    // Owner cancel logic
+    if (tokenUserType === "owner") {
+      if (appointment.status === "pending" && status === "cancelled") {
         const updatedAppointment = await prisma.appointments.update({
           where: { appointmentId },
-          data: { status, cancellationReason, isApproved: false },
+          data: {
+            status,
+            cancellationReason,
+            isApproved: false,
+          },
         });
         return res.status(200).json(updatedAppointment);
       }
+      return res.status(400).json({ message: "Invalid owner action." });
     }
 
+    // Vet logic
     if (tokenUserType === "vet") {
-      const { status, rejectionReason, vetNotes } = req.body;
+      const vetUpdateData = { status };
+
       if (status === "approved" || status === "completed") {
-        const updatedAppointment = await prisma.appointments.update({
-          where: { appointmentId },
-          data: { status, vetNotes, isApproved: status === "approved" },
-        });
-        return res.status(200).json(updatedAppointment);
+        vetUpdateData.vetNotes = vetNotes;
+        vetUpdateData.isApproved = status === "approved";
+      } else if (status === "pending") {
+        vetUpdateData.vetNotes = vetNotes;
+      } else if (status === "rejected") {
+        vetUpdateData.rejectionReason = rejectionReason;
+        vetUpdateData.isApproved = false;
+      } else {
+        return res.status(400).json({ message: "Invalid status for vet." });
       }
-      if (status === "rejected") {
-        const updatedAppointment = await prisma.appointments.update({
-          where: { appointmentId },
-          data: { status, rejectionReason, isApproved: false },
-        });
-        return res.status(200).json(updatedAppointment);
-      }
+
+      const updatedAppointment = await prisma.appointments.update({
+        where: { appointmentId },
+        data: vetUpdateData,
+      });
+
+      return res.status(200).json(updatedAppointment);
     }
 
     res.status(403).json({ message: "Unauthorized action." });
