@@ -131,7 +131,7 @@ export const addAppointment = async (req, res) => {
     const {
       vetId,
       petProfileId,
-      reasonToVist,
+      reasonToVisit,
       appointmentDate,
       durationMinutes,
       recurring,
@@ -156,7 +156,7 @@ export const addAppointment = async (req, res) => {
       data: {
         vetId,
         petProfileId,
-        reasonToVist,
+        reasonToVisit,
         appointmentDate: new Date(appointmentDate),
         durationMinutes,
         status: "pending",
@@ -170,9 +170,11 @@ export const addAppointment = async (req, res) => {
         nextOccurrence,
       },
     });
-    res
-      .status(201)
-      .json({ newAppointment, message: "Appointment created successfully." });
+    res.status(201).json({
+      newAppointment,
+      message: "Appointment Booked",
+      description: "Your appoinment has been successfully booked.",
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Failed to create appointment." });

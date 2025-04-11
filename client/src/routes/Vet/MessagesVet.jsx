@@ -32,18 +32,24 @@ const MessagesVet = () => {
       <div className="flex flex-col flex-1 bg-white shadow-md p-4">
         <h1 className="text-3xl font-bold mb-4">Chat</h1>
         <ScrollArea className="flex-1 overflow-y-auto mb-4 space-y-4">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                msg.sender === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              <Card className="p-2 max-w-[75%] bg-gray-100 text-sm mb-1">
-                {msg.content}
-              </Card>
+          {messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-muted-foreground text-lg">
+              No messages yet. Start the conversation!
             </div>
-          ))}
+          ) : (
+            messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  msg.sender === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <Card className="p-3 max-w-[75%] bg-gray-100 text-sm">
+                  {msg.content}
+                </Card>
+              </div>
+            ))
+          )}
         </ScrollArea>
         <div className="flex gap-2">
           <Input

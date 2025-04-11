@@ -30,6 +30,7 @@ import RedirectBasedOnRole from "@/routes/RedirectBasedOnRole";
 import AppointmentsVet from "@/routes/Vet/AppointmentsVet";
 import AddReport from "@/routes/Vet/Report/AddReport";
 import ReportsMainVet from "@/routes/Vet/Report/ReportsMainVet";
+import { Toaster } from "@/components/shadcn-components/ui/sonner";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -185,7 +186,12 @@ function App() {
     },
   ]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="bottom-right" />
+    </>
+  );
 }
 
 export default App;

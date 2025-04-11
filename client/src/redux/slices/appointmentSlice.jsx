@@ -1,4 +1,5 @@
 import { createApiClient } from "@/lib/createApiClient";
+import { showToast } from "@/lib/toastUtils";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const BASE_APPOINTMENT_URL = "http://localhost:8805/api/appointments";
@@ -48,6 +49,11 @@ export const addAppointment = createAsyncThunk(
   async (newAppointmentData, { rejectWithValue }) => {
     try {
       const response = await appointmentApiClient.post("/", newAppointmentData);
+      showToast(
+        response?.data?.message || "Event has been created",
+        response?.data?.description || "Sunday, December 03, 2023 at 9:00 AM",
+        "success"
+      );
       return response.data;
     } catch (error) {
       console.error("Error adding appointment:", error);

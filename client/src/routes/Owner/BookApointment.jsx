@@ -38,10 +38,10 @@ const BookAppointment = () => {
 
   const pet = useSelector(getSinglePetByUserId);
 
-  console.log(pet, "Pet Data");
+  // console.log(pet, "Pet Data");
 
   const { currentUser } = useContext(AuthContext);
-  console.log(currentUser, "Current User");
+  // console.log(currentUser, "Current User");
 
   const [isRecurring, setIsRecurring] = useState(false);
   const form = useForm({
@@ -70,6 +70,8 @@ const BookAppointment = () => {
   }, []);
 
   const onAppointmentSubmit = (data) => {
+    // console.log(data, "Form Data");
+
     dispatch(fetchSinglePetByUserId(currentUser.id));
 
     const combinedDateTime = new Date(
@@ -154,7 +156,10 @@ const BookAppointment = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {vets.map((vet) => (
-                              <SelectItem key={vet.id} value={vet.id}>
+                              <SelectItem
+                                key={vet?.vet?.id}
+                                value={vet?.vet?.id}
+                              >
                                 Dr. {vet.firstName} {vet.lastName}
                               </SelectItem>
                             ))}
