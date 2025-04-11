@@ -13,7 +13,7 @@ export const register = async (req, res) => {
     contactNumber,
     password,
     avatar,
-    vetDetails, // Object containing specialization & licenseNumber (for VET)
+    vetDetails,
     petDetails,
   } = req.body;
 

@@ -29,6 +29,7 @@ import MessagesVet from "@/routes/Vet/MessagesVet";
 import RedirectBasedOnRole from "@/routes/RedirectBasedOnRole";
 import AppointmentsVet from "@/routes/Vet/AppointmentsVet";
 import AddReport from "@/routes/Vet/Report/AddReport";
+import ReportsMainVet from "@/routes/Vet/Report/ReportsMainVet";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -128,6 +129,10 @@ function App() {
         {
           path: "appointments/addReport",
           element: <AddReport />,
+        },
+        {
+          path: "reports",
+          element: <ReportsMainVet />,
         },
         {
           path: "vaccinations",

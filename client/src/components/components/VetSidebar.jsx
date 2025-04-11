@@ -10,6 +10,7 @@ import {
   MessageSquare,
   User,
   LogOut,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/shadcn-components/ui/button";
 import { SidebarContext } from "@/context/SidebarContext";
@@ -25,6 +26,7 @@ const VetSidebar = () => {
     { name: "Dashboard", icon: Home, path: "/vet/dashboard" },
     { name: "Analytic Board", icon: BarChart3, path: "/vet/analytics" },
     { name: "Appointments", icon: Calendar, path: "/vet/appointments" },
+    { name: "Reports", icon: FileText, path: "/vet/reports" },
     { name: "Vaccinations", icon: Syringe, path: "/vet/vaccinations" },
     { name: "Notifications", icon: Bell, path: "/vet/notifications" },
     { name: "Messages", icon: MessageSquare, path: "/vet/messages" },
