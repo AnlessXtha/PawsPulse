@@ -52,7 +52,7 @@ const reportData = [
 const VetDashboard = () => {
   return (
     <>
-      <h1 className="text-5xl font-bold mb-[24px]">Vet Dashboard</h1>
+      <h1 className="text-4xl font-bold mb-[24px]">Vet Dashboard</h1>
       <div className="grid grid-cols-4 gap-4 mb-6">
         {stats.map((stat, index) => (
           <Card key={index} className="p-4 bg-white shadow-md rounded-lg">

@@ -149,9 +149,9 @@ const AnalyticBoard = () => {
   };
 
   return (
-    <div className="px-6 py-4">
+    <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-5xl font-bold">Analytic Board</h1>
+        <h1 className="text-4xl font-bold">Analytic Board</h1>
         <Button onClick={() => setShowAddDialog(true)}>Add Chart</Button>
       </div>
 

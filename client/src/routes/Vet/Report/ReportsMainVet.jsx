@@ -40,7 +40,7 @@ const ReportsMainVet = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-4">Vet Reports Overview</h1>
+      <h1 className="text-4xl font-bold mb-4">Reports</h1>
 
       <Input
         placeholder="Search by Report ID, Pet, Owner, or Vet Name"

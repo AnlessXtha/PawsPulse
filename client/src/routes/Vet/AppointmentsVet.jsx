@@ -149,7 +149,7 @@ const AppointmentsVet = () => {
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit(handleSave)} className="w-full h-full">
-        <h1 className="text-2xl font-bold mb-4">Appointments</h1>
+        <h1 className="text-4xl font-bold mb-4">Appointments</h1>
         <div className="flex gap-6 ">
           {/* Left Side */}
           <div className="w-1/3 bg-white p-4 border rounded-lg shadow-sm flex flex-col justify-between">
