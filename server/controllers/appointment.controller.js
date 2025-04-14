@@ -299,3 +299,42 @@ export const deleteAppointment = async (req, res) => {
     res.status(500).json({ message: "Failed to delete appointment." });
   }
 };
+
+export const getVetSchedule = async (req, res) => {
+  const { id } = req.params;
+
+  const tokenUserType = req.userType;
+  const tokenUserId = req.userId;
+
+  try {
+    const appointments = await prisma.appointments.findMany({
+      where: { vetId: id },
+      select: {
+        appointmentId: true,
+        appointmentDate: true,
+      },
+    });
+
+    const formattedAppointments = appointments.map((appointment) => {
+      const rawDate = appointment.appointmentDate; // This is a Date object
+      const isoString = rawDate.toISOString(); // Example: "2025-05-01T09:00:00.000Z"
+
+      const [datePart, timePart] = isoString.split("T");
+      const [hour, minute] = timePart.split(":");
+
+      return {
+        appointmentId: appointment.appointmentId,
+        appointmentDate: datePart, // e.g., "2025-05-01"
+        appointmentTime: `${parseInt(hour)}:${minute}`, // "9:00"
+      };
+    });
+
+    res.status(200).json({
+      appointments: formattedAppointments,
+      message: "Vet appointments retrieved successfully.",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Failed to get vet appointments." });
+  }
+};

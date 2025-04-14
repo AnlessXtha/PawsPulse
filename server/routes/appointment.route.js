@@ -6,6 +6,7 @@ import {
   addAppointment,
   updateAppointment,
   deleteAppointment,
+  getVetSchedule,
 } from "../controllers/appointment.controller.js";
 
 const router = express.Router();
@@ -15,5 +16,6 @@ router.get("/:id", verifyToken, getAppointment);
 router.post("/", verifyToken, addAppointment);
 router.put("/:id", verifyToken, updateAppointment);
 router.delete("/:id", verifyToken, shouldBeAdmin, deleteAppointment);
+router.get("/vet-schedule/:id", verifyToken, getVetSchedule);
 
 export default router;

@@ -8,6 +8,7 @@ const appointmentApiClient = createApiClient(BASE_APPOINTMENT_URL);
 const initialState = {
   appointments: [],
   singleAppointment: null,
+  vetAppointmentsSchedule: [],
   status: "idle",
   error: null,
 };
@@ -81,6 +82,24 @@ export const updateAppointment = createAsyncThunk(
   }
 );
 
+// delete Left
+
+export const fetchVetAppointmentsSchedule = createAsyncThunk(
+  "pets/fetchVetAppointmentsSchedule",
+  async ({ id }) => {
+    try {
+      const response = await appointmentApiClient.get(`vet-schedule/${id}`);
+
+      console.log("Appointment response: ", response.data);
+
+      return [...response.data.appointments];
+    } catch (error) {
+      console.log("Error: ", error);
+      throw error;
+    }
+  }
+);
+
 export const appointmentSlice = createSlice({
   name: "appointments",
   initialState,
@@ -94,6 +113,7 @@ export const appointmentSlice = createSlice({
         state.status = "successful";
         state.appointments = action.payload;
       })
+
       .addCase(fetchAppointments.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Unknown error";
@@ -111,6 +131,10 @@ export const appointmentSlice = createSlice({
       })
       .addCase(fetchSingleAppointment.fulfilled, (state, action) => {
         state.singleAppointment = action.payload;
+      })
+      .addCase(fetchVetAppointmentsSchedule.fulfilled, (state, action) => {
+        state.status = "successful";
+        state.vetAppointmentsSchedule = action.payload;
       });
   },
 });
@@ -118,6 +142,8 @@ export const appointmentSlice = createSlice({
 export const selectAllAppointments = (state) => state.appointments.appointments;
 export const getSingleAppointment = (state) =>
   state.appointments.singleAppointment;
+export const getVetAppointmentsSchedule = (state) =>
+  state.appointments.vetAppointmentsSchedule;
 export const getAppointmentsStatus = (state) => state.appointments.status;
 export const getAppointmentsError = (state) => state.appointments.error;
 

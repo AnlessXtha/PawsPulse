@@ -108,13 +108,6 @@ const AppointmentsVet = () => {
   const handleSave = async () => {
     if (!appointmentDetails || appointmentDetails === "none") return;
 
-    const updatedAppointmentData = {
-      ...appointmentDetails,
-      status: appointmentStatus,
-      vetNotes: vetNotes,
-      rejectionReason: rejectionReason,
-    };
-
     if (
       appointmentDetails.status === currentAppointmentStatus &&
       appointmentDetails.vetNotes === vetNotes &&
