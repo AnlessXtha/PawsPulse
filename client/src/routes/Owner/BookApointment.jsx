@@ -1,66 +1,68 @@
-import { Button } from "@/components/shadcn-components/ui/button";
+// ✅ Cleaned, updated, and optimized BookAppointment component
+
+import { useState, useEffect, useContext } from "react";
+import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
+  FormControl,
   FormMessage,
 } from "@/components/shadcn-components/ui/form";
 import { Input } from "@/components/shadcn-components/ui/input";
+import { Button } from "@/components/shadcn-components/ui/button";
 import { Checkbox } from "@/components/shadcn-components/ui/checkbox";
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectContent,
+  SelectItem,
 } from "@/components/shadcn-components/ui/select";
-import { useForm } from "react-hook-form";
-import { useState, useEffect, useContext } from "react";
 import { Calendar } from "@/components/shadcn-components/ui/calendar";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchVets, selectAllVets } from "@/redux/slices/vetSlice";
-import { useNavigate } from "react-router-dom";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { appointmentSchema } from "@/schema/AppointmentSchema";
+import { fetchVets, selectAllVets } from "@/redux/slices/vetSlice";
 import {
   addAppointment,
+  addRecurringAppointments,
   fetchVetAppointmentsSchedule,
   getVetAppointmentsSchedule,
 } from "@/redux/slices/appointmentSlice";
-import { AuthContext } from "@/context/AuthContext";
 import {
   fetchSinglePetByUserId,
   getSinglePetByUserId,
 } from "@/redux/slices/petSlice";
+import { AuthContext } from "@/context/AuthContext";
+import { isSameDay, parseISO } from "date-fns";
+import { Textarea } from "@/components/shadcn-components/ui/textarea";
 
 const BookAppointment = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { currentUser } = useContext(AuthContext);
   const vets = useSelector(selectAllVets);
-
+  const vetsSchedule = useSelector(getVetAppointmentsSchedule);
   const pet = useSelector(getSinglePetByUserId);
 
-  const vetsSchedule = useSelector(getVetAppointmentsSchedule);
-
-  console.log(vetsSchedule, "vetsSchedule  ");
-
-  const { currentUser } = useContext(AuthContext);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [showUntilDatePicker, setShowUntilDatePicker] = useState(false);
 
   const times = [
-    { value: "09:00", text: "09:00 am" },
-    { value: "10:00", text: "10:00 am" },
-    { value: "11:00", text: "11:00 am" },
-    { value: "12:00", text: "12:00 pm" },
-    { value: "13:00", text: "01:00 pm" },
-    { value: "14:00", text: "02:00 pm" },
-    { value: "15:00", text: "03:00 pm" },
-    { value: "16:00", text: "04:00 pm" },
-    { value: "17:00", text: "05:00 pm" },
+    "09:00",
+    "10:00",
+    "11:00",
+    "12:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
   ];
 
-  const [isRecurring, setIsRecurring] = useState(false);
   const form = useForm({
     defaultValues: {
       reason: "",
@@ -71,44 +73,58 @@ const BookAppointment = () => {
       recurringUntil: "",
       vet: "",
     },
-    mode: "onTouched",
     resolver: zodResolver(appointmentSchema),
+    mode: "onTouched",
   });
 
-  const {
-    handleSubmit,
-    formState: { errors },
-  } = form;
-
-  // console.log("errors", errors);
+  const { handleSubmit, setValue, watch } = form;
+  const watchRule = watch("recurringRule");
+  const watchDate = watch("appointmentDate");
+  const watchVet = watch("vet");
 
   useEffect(() => {
     dispatch(fetchVets());
     dispatch(fetchSinglePetByUserId(currentUser.id));
   }, [currentUser, dispatch]);
 
-  const onAppointmentSubmit = (data) => {
-    // console.log(data, "Form Data");
+  useEffect(() => {
+    if (watchRule === "weekly" || watchRule === "biweekly") {
+      setValue("recurringUntil", "month");
+    } else if (watchRule === "monthly" || watchRule === "bimonthly") {
+      // setValue("recurringUntil", "year");
+    } else if (watchRule === "annually") {
+      setValue("recurringUntil", "year");
+    }
+  }, [watchRule, setValue]);
+
+  const onSubmit = (data) => {
+    const date = data.appointmentDate;
+    const [year, month, day] = [
+      date.getFullYear(),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      String(date.getDate()).padStart(2, "0"),
+    ];
 
     const combinedDateTime = new Date(
-      `${data.appointmentDate.toISOString().split("T")[0]}T${
-        data.appointmentTime
-      }:00.000Z`
+      `${year}-${month}-${day}T${data.appointmentTime}:00.000Z`
     );
 
-    let recurringUntil;
+    console.log(data.appointmentDate, "appointmentDate");
+    console.log(combinedDateTime, "combinedDateTime");
+
+    let recurringUntil = null;
     if (data.recurring) {
+      recurringUntil = new Date(combinedDateTime);
+
       switch (data.recurringUntil) {
-        case "month":
-          recurringUntil = new Date(combinedDateTime);
-          recurringUntil.setMonth(recurringUntil.getMonth() + 1);
+        case "month-three":
+          recurringUntil.setMonth(recurringUntil.getMonth() + 2);
+          break;
+        case "month-six":
+          recurringUntil.setMonth(recurringUntil.getMonth() + 5);
           break;
         case "year":
-          recurringUntil = new Date(combinedDateTime);
           recurringUntil.setFullYear(recurringUntil.getFullYear() + 1);
-          break;
-        default:
-          recurringUntil = null;
           break;
       }
     }
@@ -124,19 +140,145 @@ const BookAppointment = () => {
       recurringUntil,
     };
 
-    console.log(bookingData, "Booking Data");
+    if (data.recurring) {
+      dispatch(addRecurringAppointments(bookingData));
+    } else {
+      dispatch(addAppointment(bookingData));
+    }
 
-    dispatch(addAppointment(bookingData));
+    // Clear all fields after booking
+    form.reset({
+      reason: "",
+      appointmentDate: null,
+      appointmentTime: null,
+      recurring: false,
+      recurringRule: "",
+      recurringUntil: "",
+      vet: "",
+    });
 
-    // navigate("/appointments");
+    navigate("/bookAppointment");
+  };
+
+  const disableBookedDates = (date) => {
+    // Filter appointments for the given date
+    const appointmentsForDate = vetsSchedule.filter((appointment) =>
+      isSameDay(parseISO(appointment.appointmentDate), date)
+    );
+
+    // Check if all time slots are booked
+    const bookedTimes = appointmentsForDate.map(
+      (appointment) => appointment.appointmentTime
+    );
+    return times.every((time) => bookedTimes.includes(time));
+  };
+
+  const disableBookedTimes = (date) => {
+    if (!date) return [];
+    return vetsSchedule
+      .filter((appointment) =>
+        isSameDay(parseISO(appointment.appointmentDate), date)
+      )
+      .map((appointment) => appointment.appointmentTime);
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="w-[1000px] bg-white p-8 rounded-lg shadow-md ">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="w-[1000px] bg-white p-8 rounded-lg shadow-md">
         <h2 className="text-[28px] font-bold mb-6">Book an Appointment</h2>
         <Form {...form}>
-          <form onSubmit={handleSubmit(onAppointmentSubmit)}>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {/* Recurring Logic */}
+            <div className="mb-6">
+              <FormField
+                control={form.control}
+                name="recurring"
+                render={({ field }) => (
+                  <FormItem
+                    className={`flex items-center justify-between min-h-0 mt-6 ${
+                      isRecurring && "mb-6"
+                    }`}
+                  >
+                    <FormLabel>Make it a Routine?</FormLabel>
+                    <FormControl>
+                      <Checkbox
+                        checked={isRecurring}
+                        onCheckedChange={(checked) => {
+                          setIsRecurring(checked);
+                          field.onChange(checked);
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              {isRecurring && (
+                <div className="flex justify-between mb-6">
+                  <FormField
+                    control={form.control}
+                    name="recurringRule"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Recurring Rule</FormLabel>
+                        <FormControl>
+                          <Select onValueChange={field.onChange}>
+                            <SelectTrigger className="flex-1 min-w-full w-[456px]">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {/* <SelectItem value="weekly">Weekly</SelectItem>
+                              <SelectItem value="biweekly">Biweekly</SelectItem> */}
+                              <SelectItem value="monthly">Monthly</SelectItem>
+                              {/* <SelectItem value="bimonthly">
+                                Bi-Monthly
+                              </SelectItem> */}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="recurringUntil"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Recurring Until</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              setShowUntilDatePicker(value === "date");
+                            }}
+                          >
+                            <SelectTrigger className=" flex-1 min-w-full w-[456px]">
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="month-three">
+                                For 3 Month
+                              </SelectItem>
+                              <SelectItem value="month-six">
+                                For 6 Month
+                              </SelectItem>
+                              <SelectItem value="year">For a Year</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+            </div>
+
+            <hr className="mb-6" />
+
+            {/* Reason & Vet Selection */}
             <div className="flex gap-6 mb-6">
               <div className="flex-1 space-y-6">
                 <FormField
@@ -144,11 +286,10 @@ const BookAppointment = () => {
                   name="reason"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[18px]">
-                        Reason to Visit
-                      </FormLabel>
+                      <FormLabel>Reason to Visit</FormLabel>
                       <FormControl>
-                        <Input
+                        <Textarea
+                          className="min-h-auto h-[367px]"
                           placeholder="Describe the reason..."
                           {...field}
                         />
@@ -157,14 +298,13 @@ const BookAppointment = () => {
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="vet"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[18px]">
-                        Select a Vet
-                      </FormLabel>
+                      <FormLabel>Select a Vet</FormLabel>
                       <FormControl>
                         <Select
                           onValueChange={(value) => {
@@ -174,15 +314,12 @@ const BookAppointment = () => {
                             );
                           }}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="min-w-full w-[456px]">
                             <SelectValue placeholder="Select" />
                           </SelectTrigger>
                           <SelectContent>
                             {vets.map((vet) => (
-                              <SelectItem
-                                key={vet?.vet?.id}
-                                value={vet?.vet?.id}
-                              >
+                              <SelectItem key={vet.vet.id} value={vet.vet.id}>
                                 Dr. {vet.firstName} {vet.lastName}
                               </SelectItem>
                             ))}
@@ -194,167 +331,65 @@ const BookAppointment = () => {
                   )}
                 />
               </div>
-              <div className="flex-1 flex flex-col justify-start space-y-4">
+
+              {/* Date and Time */}
+              <div className="flex-1 space-y-6">
                 <FormField
                   control={form.control}
                   name="appointmentDate"
-                  render={({ field }) => {
-                    const selectedVetId = form.watch("vet");
-
-                    // Dates that have at least one booked time
-                    const bookedDates = vetsSchedule.map(
-                      (appt) => appt.appointmentDate
-                    );
-
-                    return (
-                      <FormItem>
-                        <FormLabel className="text-[18px]">
-                          Appointment Date
-                        </FormLabel>
-                        <FormControl>
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={(date) => {
-                              if (date) {
-                                const utcDate = new Date(
-                                  Date.UTC(
-                                    date.getFullYear(),
-                                    date.getMonth(),
-                                    date.getDate()
-                                  )
-                                );
-                                field.onChange(utcDate);
-                              }
-                            }}
-                            disabled={[
-                              {
-                                before: new Date(
-                                  new Date().setDate(new Date().getDate() + 1)
-                                ),
-                              },
-                              !selectedVetId && {
-                                from: new Date(2000, 0, 1),
-                                to: new Date(2100, 11, 31),
-                              },
-                              // Disable dates that have all 9 slots booked
-                              (date) => {
-                                const formatted = date
-                                  .toISOString()
-                                  .split("T")[0];
-                                const bookedTimes = vetsSchedule.filter(
-                                  (appt) => appt.appointmentDate === formatted
-                                );
-                                return bookedTimes.length >= 9; // all time slots taken
-                              },
-                            ].filter(Boolean)}
-                            className="w-full border border-gray-300"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Appointment Date</FormLabel>
+                      <FormControl>
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          // onSelect={(date) => {date && field.onChange(date) console.log(date, "date") }};
+                          // }}
+                          onSelect={(date) => {
+                            if (date) {
+                              field.onChange(date);
+                              console.log(date, "date");
+                            }
+                          }}
+                          disabled={[
+                            { before: new Date(Date.now() + 86400000) },
+                            !watchVet && {
+                              from: new Date(2000, 0, 1),
+                              to: new Date(2100, 11, 31),
+                            },
+                            disableBookedDates,
+                          ].filter(Boolean)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
 
                 <FormField
                   control={form.control}
                   name="appointmentTime"
-                  render={({ field }) => {
-                    const selectedDate = form.watch("appointmentDate");
-                    const selectedDateFormatted = selectedDate
-                      ? selectedDate.toISOString().split("T")[0]
-                      : null;
-
-                    const bookedTimesForDate = vetsSchedule
-                      .filter(
-                        (appt) => appt.appointmentDate === selectedDateFormatted
-                      )
-                      .map((appt) => {
-                        const [hour, minute] = appt.appointmentTime.split(":");
-                        return `${hour.padStart(2, "0")}:${minute}`;
-                      });
-
-                    return (
-                      <FormItem>
-                        <FormLabel className="text-[18px]">
-                          Appointment Time
-                        </FormLabel>
-                        <FormControl
-                          disabled={!form.watch("vet") || !selectedDate}
-                        >
-                          <Select onValueChange={field.onChange}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a Time" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {times.map((time) => (
-                                <SelectItem
-                                  key={time.value}
-                                  value={time.value}
-                                  disabled={bookedTimesForDate.includes(
-                                    time.value
-                                  )}
-                                >
-                                  {time.text}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    );
-                  }}
-                />
-              </div>
-            </div>
-
-            <hr className="bg-red-100" />
-
-            <div className="grid gap-4 mt-6">
-              <div className="col-span-2">
-                <FormField
-                  control={form.control}
-                  name="recurring"
-                  render={({ field }) => (
-                    <FormItem className={"flex items-center justify-between"}>
-                      <FormLabel className="text-[18px]">
-                        Make it Recurring?
-                      </FormLabel>
-                      <FormControl>
-                        <Checkbox
-                          checked={isRecurring}
-                          onCheckedChange={(checked) => {
-                            setIsRecurring(checked);
-                            field.onChange(checked);
-                          }}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              {isRecurring && (
-                <FormField
-                  control={form.control}
-                  name="recurringRule"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-[18px]">
-                        Recurring Rule
-                      </FormLabel>
-                      <FormControl>
+                      <FormLabel>Appointment Time</FormLabel>
+                      <FormControl disabled={!watchVet || !watchDate}>
                         <Select onValueChange={field.onChange}>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select" />
+                            <SelectValue placeholder="Select a Time" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="annually">Annually</SelectItem>
-                            <SelectItem value="monthly">Monthly</SelectItem>
-                            <SelectItem value="bimonthly">
-                              Bi-Monthly
-                            </SelectItem>
+                            {times.map((t) => (
+                              <SelectItem
+                                key={t}
+                                value={t}
+                                disabled={disableBookedTimes(
+                                  watchDate
+                                ).includes(t)}
+                              >
+                                {t}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </FormControl>
@@ -362,40 +397,14 @@ const BookAppointment = () => {
                     </FormItem>
                   )}
                 />
-              )}
-              {isRecurring && (
-                <FormField
-                  control={form.control}
-                  name="recurringUntil"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-[18px]">
-                        Recurring Until
-                      </FormLabel>
-                      <FormControl>
-                        <Select onValueChange={field.onChange}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="month">For a Month</SelectItem>
-                            <SelectItem value="year">For a Year</SelectItem>
-                            <SelectItem value="date">Pick a Date</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+              </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="col-span-2 flex justify-between mt-4">
+            <div className="flex justify-between mt-8">
               <Button
-                type="button"
                 variant="outline"
+                type="button"
                 onClick={() => navigate("/")}
               >
                 Cancel

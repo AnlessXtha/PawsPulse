@@ -181,6 +181,89 @@ export const addAppointment = async (req, res) => {
   }
 };
 
+export const addRecurringAppointments = async (req, res) => {
+  const tokenUserType = req.userType;
+  const tokenUserId = req.userId;
+
+  if (tokenUserType !== "owner") {
+    return res
+      .status(403)
+      .json({ message: "Only owners can create appointments." });
+  }
+
+  try {
+    const {
+      vetId,
+      petProfileId,
+      reasonToVisit,
+      appointmentDate,
+      durationMinutes,
+      recurrenceRule,
+      recurringUntil,
+    } = req.body;
+
+    const appointments = [];
+    let currentDate = new Date(appointmentDate);
+
+    while (currentDate <= new Date(recurringUntil)) {
+      const nextOccurrence = calculateNextOccurrence(
+        currentDate,
+        recurrenceRule
+      );
+
+      appointments.push({
+        vetId,
+        petProfileId,
+        reasonToVisit,
+        appointmentDate: new Date(currentDate),
+        durationMinutes,
+        status: "pending",
+        rejectionReason: null,
+        cancellationReason: null,
+        vetNotes: null,
+        isApproved: false,
+        recurring: true,
+        recurrenceRule,
+        recurringUntil: new Date(recurringUntil),
+        nextOccurrence:
+          nextOccurrence <= new Date(recurringUntil) ? nextOccurrence : null,
+      });
+
+      // Move to the next occurrence
+      currentDate = nextOccurrence;
+    }
+
+    // Insert all appointments into the database
+    await prisma.appointments.createMany({
+      data: appointments,
+    });
+
+    // Fetch the created appointments
+    const createdAppointments = await prisma.appointments.findMany({
+      where: {
+        vetId,
+        petProfileId,
+        appointmentDate: {
+          gte: new Date(appointmentDate),
+          lte: new Date(recurringUntil),
+        },
+      },
+      orderBy: {
+        appointmentDate: "asc",
+      },
+    });
+
+    res.status(201).json({
+      appointments: createdAppointments,
+      message: "Recurring appointments booked successfully.",
+    });
+  } catch (err) {
+    console.log(err);
+    res
+      .status(500)
+      .json({ message: "Failed to create recurring appointments." });
+  }
+};
 export const calculateNextOccurrence = (appointmentDate, recurrenceRule) => {
   let nextOccurrence = new Date(appointmentDate);
 
@@ -325,7 +408,9 @@ export const getVetSchedule = async (req, res) => {
       return {
         appointmentId: appointment.appointmentId,
         appointmentDate: datePart, // e.g., "2025-05-01"
-        appointmentTime: `${parseInt(hour)}:${minute}`, // "9:00"
+        appointmentTime: `${parseInt(hour)
+          .toString()
+          .padStart(2, "0")}:${minute}`, // e.g., "09:00"
       };
     });
 

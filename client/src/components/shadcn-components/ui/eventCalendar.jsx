@@ -25,7 +25,7 @@ function Calendar({
     return count;
   };
 
-  console.log("appointments", appointments);
+  // console.log("appointments", appointments);
 
   return (
     <DayPicker

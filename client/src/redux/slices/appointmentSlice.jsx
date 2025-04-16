@@ -19,7 +19,7 @@ export const fetchAppointments = createAsyncThunk(
     try {
       const response = await appointmentApiClient.get("/");
 
-      console.log(response.data, "response.data");
+      // console.log(response.data, "response.data");
 
       return [...response.data.appointments];
     } catch (error) {
@@ -35,7 +35,7 @@ export const fetchSingleAppointment = createAsyncThunk(
     try {
       const response = await appointmentApiClient.get(`/${id}`);
 
-      console.log("Appointment response: ", response.data);
+      // console.log("Appointment response: ", response.data);
 
       return response.data.appointment;
     } catch (error) {
@@ -65,12 +65,34 @@ export const addAppointment = createAsyncThunk(
   }
 );
 
+export const addRecurringAppointments = createAsyncThunk(
+  "appointments/addRecurringAppointments",
+  async (newAppointmentData, { rejectWithValue }) => {
+    try {
+      const response = await appointmentApiClient.post(
+        "/recurring",
+        newAppointmentData
+      );
+      showToast(
+        response?.data?.message || "Recurring appointments created",
+        "Appointments have been successfully booked.",
+        "success"
+      );
+      console.log("Recurring appointments response: ", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error adding recurring appointments:", error);
+      return rejectWithValue(
+        error.response?.data || "Failed to add recurring appointments"
+      );
+    }
+  }
+);
+
 export const updateAppointment = createAsyncThunk(
   "appointments/updateAppointment",
   async ({ id, data }, { rejectWithValue }) => {
     try {
-      console.log("updateAppointmentData", id, data);
-
       const response = await appointmentApiClient.put(`/${id}`, data);
       return response.data;
     } catch (error) {
