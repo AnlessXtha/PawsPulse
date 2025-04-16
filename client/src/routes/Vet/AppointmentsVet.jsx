@@ -1,4 +1,3 @@
-import * as React from "react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -314,17 +313,34 @@ const AppointmentsVet = () => {
                   <FormLabel className="text-[18px]">Select Time</FormLabel>
                   <div className="flex items-end gap-4 justify-between">
                     {/* Time Select */}
-                    <FormControl className="w-full">
+                    <FormControl className="w-full ">
                       <Select
                         onValueChange={(value) => setSelectedTime(value)}
                         value={selectedTime}
                       >
-                        <SelectTrigger className="bg-white">
+                        <SelectTrigger className="bg-white ">
                           <SelectValue placeholder="Select a Time" />
                         </SelectTrigger>
                         <SelectContent>
                           {times.map((time) => (
-                            <SelectItem key={time.value} value={time.value}>
+                            <SelectItem
+                              key={time.value}
+                              value={time.value}
+                              disabled={
+                                !allAppointments.some((appt) => {
+                                  const apptDate = new Date(
+                                    appt.appointmentDate
+                                  );
+                                  const isSameDate =
+                                    apptDate?.toISOString().split("T")[0] ===
+                                    selectedDate?.toISOString().split("T")[0];
+                                  const isSameHour =
+                                    apptDate.getUTCHours() ===
+                                    parseInt(time.value);
+                                  return isSameDate && isSameHour;
+                                })
+                              }
+                            >
                               {time.text}
                             </SelectItem>
                           ))}
