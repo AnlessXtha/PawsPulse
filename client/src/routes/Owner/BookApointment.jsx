@@ -1,5 +1,3 @@
-// ✅ Cleaned, updated, and optimized BookAppointment component
-
 import { useState, useEffect, useContext } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
