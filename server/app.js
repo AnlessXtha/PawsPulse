@@ -8,6 +8,8 @@ import petRoute from "./routes/pet.route.js";
 import appointmentRoute from "./routes/appointment.route.js";
 import reportRoute from "./routes/report.route.js";
 // import postRoute from "./routes/post.route.js";
+import chatRoute from "./routes/chat.route.js";
+import messageRoute from "./routes/message.route.js";
 
 const app = express();
 app.use(
@@ -25,6 +27,9 @@ app.use("/api/users", userRoute);
 app.use("/api/pets", petRoute);
 app.use("/api/appointments", appointmentRoute);
 app.use("/api/reports", reportRoute);
+
+app.use("/api/chats", chatRoute);
+app.use("/api/messages", messageRoute);
 
 app.listen(8805, () => {
   console.log("Server is running on port 8805");
