@@ -9,6 +9,7 @@ import {
   Calendar,
   User,
   LogOut,
+  UserPlus,
 } from "lucide-react";
 import { Button } from "@/components/shadcn-components/ui/button";
 import { SidebarContext } from "@/context/SidebarContext";
@@ -26,6 +27,7 @@ const AdminSidebar = () => {
     { name: "Vets", icon: Shield, path: "/admin/vetControl" },
     { name: "Pets", icon: Clipboard, path: "/admin/petControl" },
     { name: "Appointments", icon: Calendar, path: "/admin/appointmentControl" },
+    { name: "Register a Vet", icon: UserPlus, path: "/admin/register-vet" },
   ];
 
   const logoutHandler = handleLogout(updateUser, navigate);
