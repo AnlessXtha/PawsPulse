@@ -5,12 +5,15 @@ import App from "./App.jsx";
 import { AuthContextProvider } from "@/context/AuthContext";
 import { Provider } from "react-redux";
 import store from "@/redux/store";
+import { SocketContextProvider } from "@/context/SocketContext";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
       <AuthContextProvider>
-        <App />
+        <SocketContextProvider>
+          <App />
+        </SocketContextProvider>
       </AuthContextProvider>
     </Provider>
   </StrictMode>

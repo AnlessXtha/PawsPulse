@@ -6,6 +6,41 @@ const io = new Server({
   },
 });
 
+let onlineUser = [];
+
+const addUser = (userId, socketId) => {
+  const userExits = onlineUser.find((user) => user.userId === userId);
+  if (!userExits) {
+    onlineUser.push({ userId, socketId });
+  }
+};
+
+const removeUser = (socketId) => {
+  onlineUser = onlineUser.filter((user) => user.socketId !== socketId);
+};
+
+const getUser = (userId) => {
+  return onlineUser.find((user) => user.userId === userId);
+};
+
 io.on("connection", (socket) => {
-  console.log(socket);
+  socket.on("newUser", (userId) => {
+    addUser(userId, socket.id);
+  });
+
+  socket.on("sendMessage", ({ receiverId, data }) => {
+    console.log(receiverId, "receiverId");
+    console.log(data, "data");
+
+    const receiver = getUser(receiverId);
+    io.to(receiver?.socketId).emit("getMessage", data);
+  });
+
+  socket.on("disconnect", () => {
+    removeUser(socket.id);
+  });
+});
+
+io.listen(4000, () => {
+  console.log("Socket.io server is running on port 4000");
 });

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Input } from "@/components/shadcn-components/ui/input";
 import { Button } from "@/components/shadcn-components/ui/button";
 import { Card } from "@/components/shadcn-components/ui/card";
@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AuthContext } from "@/context/AuthContext";
 import { format } from "timeago.js";
 import apiRequest from "@/lib/apiRequest";
+import { SocketContext } from "@/context/SocketContext";
 
 const MessagesVet = () => {
   const dispatch = useDispatch();
@@ -26,6 +27,8 @@ const MessagesVet = () => {
   const allChats = useSelector(selectAllChats);
 
   const { currentUser } = useContext(AuthContext);
+  const { socket } = useContext(SocketContext);
+
   const [message, setMessage] = useState("");
 
   const [chat, setChat] = useState(null);
@@ -61,12 +64,46 @@ const MessagesVet = () => {
         messages: [...prev.messages, res.data],
       }));
       setMessage("");
+      socket.emit("sendMessage", {
+        receiverId: chat.receiver.id,
+        data: res.data,
+      });
     } catch (error) {
       console.log(error);
     }
   };
 
+  useEffect(() => {
+    const read = async () => {
+      try {
+        await apiRequest.put(`/chats/read/${chat.id}`);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    if (chat && socket) {
+      socket.on("getMessage", (data) => {
+        if (chat.id === data.chatId) {
+          setChat((prev) => ({ ...prev, messages: [...prev.messages, data] }));
+          read();
+        }
+      });
+    }
+    return () => {
+      socket?.off("getMessage");
+    };
+  }, [chat, socket]);
+
   console.log(chat, "chat");
+
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chat?.messages]);
 
   return (
     <div className="flex h-full rounded-md overflow-hidden ">
@@ -87,7 +124,7 @@ const MessagesVet = () => {
         </div>
       ) : (
         <div
-          className="flex flex-col flex-1 shadow-md animate-in fade-in-0 slide-in-from-right-10 duration-300"
+          className="flex flex-col flex-1 max-h-[863px] shadow-md animate-in fade-in-0 slide-in-from-right-10 duration-300"
           style={{
             background: `url(${bg})`,
             // backgroundSize: "cover",
@@ -105,7 +142,7 @@ const MessagesVet = () => {
             {chat?.receiver.firstName} {chat?.receiver.lastName}
           </h1>
           {/* <hr className="border-gray-500" /> */}
-          <ScrollArea className="flex-1 overflow-y-auto space-y-4 p-4 bg-[#a63e4b]/10 animate-in fade-in-0 slide-in-from-right-10 duration-300">
+          <ScrollArea className="flex-1 overflow-y-auto space-y-4 p-4 bg-[#a63e4b]/10 animate-in fade-in-0 slide-in-from-right-10 duration-300 scrollbar-hide">
             {chat?.messages?.length === 0 ? (
               <div className="flex items-center justify-center h-full text-muted-foreground text-lg">
                 No messages yet. Start the conversation!
@@ -160,7 +197,7 @@ const MessagesVet = () => {
 
                         <Avatar>
                           <AvatarFallback>
-                            {chat.receiver.firstName.charAt(0)}
+                            {currentUser.firstName.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       </>
@@ -169,6 +206,7 @@ const MessagesVet = () => {
                 </div>
               ))
             )}
+            <div ref={messagesEndRef} />
           </ScrollArea>
           <div className="flex items-center gap-2 p-3 bg-[#a63e4b]/10">
             <Input
