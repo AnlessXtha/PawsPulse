@@ -93,10 +93,10 @@ function App() {
           index: true,
           element: <RedirectBasedOnRole />,
         },
-        // {
-        //   path: "home",
-        //   element: <HomePage />,
-        // },
+        {
+          path: "/home",
+          element: <HomePage />,
+        },
         {
           path: "about",
           element: <OurServicesPage />,
@@ -187,7 +187,7 @@ function App() {
           children: [
             {
               index: true,
-              element: <Navigate to="profile" replace />,
+              element: <Navigate to="pofile" replace />,
             },
             {
               path: "book",

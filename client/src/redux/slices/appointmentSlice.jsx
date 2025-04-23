@@ -52,7 +52,7 @@ export const addAppointment = createAsyncThunk(
       const response = await appointmentApiClient.post("/", newAppointmentData);
       showToast(
         response?.data?.message || "Event has been created",
-        response?.data?.description || "Sunday, December 03, 2023 at 9:00 AM",
+        response?.data?.description,
         "success"
       );
       return response.data;

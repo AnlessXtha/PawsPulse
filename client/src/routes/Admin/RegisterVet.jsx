@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import UploadWidget from "@/components/components/UploadWidget.jsx/UploadWidget";
 import { Button } from "@/components/shadcn-components/ui/button";
 import {
@@ -12,21 +12,36 @@ import { Input } from "@/components/shadcn-components/ui/input";
 import apiRequest from "@/lib/apiRequest";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { vetRegisterSchema } from "@/schema/RegisterVetSchema";
+import { addVet } from "@/redux/slices/vetSlice";
+import { useDispatch } from "react-redux";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn-components/ui/select";
 
 const RegisterVet = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const form = useForm({
     mode: "onSubmit",
     defaultValues: {
       avatar: undefined,
     },
+    resolver: zodResolver(vetRegisterSchema),
   });
 
   const {
     handleSubmit,
     formState: { errors },
   } = form;
+
+  console.log(errors);
 
   const onRegister = async (data) => {
     const finalRegisterData = {
@@ -38,17 +53,32 @@ const RegisterVet = () => {
       },
     };
 
+    console.log("Registering vet with data: ", finalRegisterData);
+
     try {
-      const res = await apiRequest.post("/auth/register", finalRegisterData);
+      const res = await dispatch(addVet(finalRegisterData));
       console.log("Vet registered successfully", res.data);
-      navigate("/login");
+
+      if (!res.error) {
+        form.setValue("firstName", "");
+        form.setValue("lastName", "");
+        form.setValue("username", "");
+        form.setValue("email", "");
+        form.setValue("contactNumber", "");
+        form.setValue("password", "");
+        form.setValue("specialization", "");
+        form.setValue("licenseNumber", "");
+        form.setValue("avatar", undefined);
+
+        setAvatar([]);
+      }
     } catch (err) {
       console.log(err.response?.data?.message || "Failed to register vet");
     }
   };
 
   const [avatar, setAvatar] = useState([]);
-  React.useEffect(() => {
+  useEffect(() => {
     if (avatar) {
       if (avatar.length > 1) {
         const updatedAvatars = avatar.slice(1);
@@ -63,8 +93,8 @@ const RegisterVet = () => {
   }, [avatar, form.setValue, setAvatar]);
 
   return (
-    <>
-      <div className="w-fit h-[auto] mx-auto bg-white  rounded-lg shadow-lg">
+    <div className="flex justify-center items-center h-full ">
+      <div className="w-fit h-[auto] m-auto bg-white rounded-lg shadow-lg">
         <div className="w-fit flex flex-col justify-center p-8">
           <h1 className="text-3xl font-bold text-[#121827] mb-6 flex justify-center">
             PawsPulse
@@ -183,62 +213,56 @@ const RegisterVet = () => {
                 )}
               />
 
-              <div className="row-span-3 flex flex-col items-center">
-                {avatar[0] ? (
-                  <>
-                    <img
-                      src={avatar[0] || "/noavatar.jpg"}
-                      alt=""
-                      className="avatar w-[158px] h-[162px]"
-                    />
-                    <UploadWidget
-                      uwConfig={{
-                        cloudName: "anless",
-                        uploadPreset: "estate",
-                        multiple: false,
-                        maxImageFileSize: 2000000,
-                        folder: "avatars",
-                      }}
-                      setState={setAvatar}
-                      customCss="border border-gray-300 rounded-md px-4 py-2 cursor-pointer mt-2"
-                      displayText="Change Picture"
-                    />
-                  </>
-                ) : (
-                  <>
-                    <UploadWidget
-                      uwConfig={{
-                        cloudName: "anless",
-                        uploadPreset: "estate",
-                        multiple: false,
-                        maxImageFileSize: 2000000,
-                        folder: "avatars",
-                      }}
-                      setState={setAvatar}
-                      customCss="border border-gray-300 rounded-md px-4 py-2 w-[158px] h-[162px] cursor-pointer"
-                      displayText="Click here to upload a photo"
-                    />
-                  </>
-                )}
-
-                {errors.avatar && form.formState.isSubmitted && (
-                  <p className="text-red-500 text-sm mt-2">
-                    {errors.avatar.message}
-                  </p>
-                )}
-              </div>
-
               <FormField
                 control={form.control}
                 name="specialization"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input
-                        className={"w-[290px]"}
-                        placeholder="Specialization"
-                        {...field}
-                      />
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger className="flex-1 min-w-full w-[290px]">
+                          <SelectValue placeholder="Select Specialization" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="General Practice Vet">
+                            General Practice Vet
+                          </SelectItem>
+                          <SelectItem value="Dermatologist">
+                            Dermatologist
+                          </SelectItem>
+                          <SelectItem value="Dentist (Veterinary Dentistry)">
+                            Dentist (Veterinary Dentistry)
+                          </SelectItem>
+                          <SelectItem value="Orthopedic Surgeon">
+                            Orthopedic Surgeon
+                          </SelectItem>
+                          <SelectItem value="Internal Medicine Specialist">
+                            Internal Medicine Specialist
+                          </SelectItem>
+                          <SelectItem value="Neurologist">
+                            Neurologist
+                          </SelectItem>
+                          <SelectItem value="Oncologist">Oncologist</SelectItem>
+                          <SelectItem value="Cardiologist">
+                            Cardiologist
+                          </SelectItem>
+                          <SelectItem value="Ophthalmologist">
+                            Ophthalmologist
+                          </SelectItem>
+                          <SelectItem value="Emergency/Critical Care">
+                            Emergency/Critical Care
+                          </SelectItem>
+                          <SelectItem value="Behaviorist">
+                            Behaviorist
+                          </SelectItem>
+                          <SelectItem value="Nutritionist">
+                            Nutritionist
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -262,6 +286,51 @@ const RegisterVet = () => {
                 )}
               />
 
+              <div className="col-span-2  flex flex-col items-center">
+                {avatar[0] ? (
+                  <>
+                    <img
+                      src={avatar[0] || "/noavatar.jpg"}
+                      alt=""
+                      className="avatar w-[600] h-[250px] "
+                    />
+                    <UploadWidget
+                      uwConfig={{
+                        cloudName: "anless",
+                        uploadPreset: "estate",
+                        multiple: false,
+                        maxImageFileSize: 2000000,
+                        folder: "avatars",
+                      }}
+                      setState={setAvatar}
+                      customCss="border border-gray-300 rounded-md px-4 py-2  cursor-pointer mt-2"
+                      displayText="Change Picture"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <UploadWidget
+                      uwConfig={{
+                        cloudName: "anless",
+                        uploadPreset: "estate",
+                        multiple: false,
+                        maxImageFileSize: 2000000,
+                        folder: "avatars",
+                      }}
+                      setState={setAvatar}
+                      customCss="border border-gray-300 rounded-md px-4 py-2 w-full h-[250px] cursor-pointer"
+                      displayText="Click here to upload a certification"
+                    />
+                  </>
+                )}
+
+                {errors.avatar && form.formState.isSubmitted && (
+                  <p className="text-red-500 text-sm mt-2">
+                    {errors.avatar.message}
+                  </p>
+                )}
+              </div>
+
               <div className="flex col-span-2 justify-end">
                 <Button
                   type="submit"
@@ -274,7 +343,7 @@ const RegisterVet = () => {
           </Form>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

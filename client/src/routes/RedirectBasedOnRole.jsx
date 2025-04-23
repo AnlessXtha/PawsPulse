@@ -17,7 +17,7 @@ const RedirectBasedOnRole = () => {
     case "vet":
       return <Navigate to="/vet/dashboard" replace />;
     case "owner":
-      return <Navigate to="/" replace />;
+      return <Navigate to="/home" replace />;
     default:
       return <HomePage />;
   }

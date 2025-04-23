@@ -4,7 +4,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/shadcn-components/ui/form";
 import { Input } from "@/components/shadcn-components/ui/input";
@@ -33,38 +32,18 @@ const Login = () => {
       const res = await apiRequest.post("/auth/login", data);
 
       updateUser(res.data?.userInfo);
-
-      // console.log(currentUser, "currentUser");
-
-      // // Extract user role
-      // const userType = currentUser?.userType;
-      // console.log(userType, "userType");
-
-      // // Navigate based on role
-      // if (userType === "owner") {
-      //   navigate("/");
-      // } else if (userType === "vet") {
-      //   navigate("/vetDashboard");
-      // } else if (userType === "admin") {
-      //   navigate("/adminDashboard");
-      // } else {
-      //   navigate("/"); // Default fallback route
-      // }
     } catch (err) {
       console.log(err.response?.data?.message || "Login failed");
     }
   };
 
   useEffect(() => {
-    if (!currentUser) return; // Prevent running on mount
-
-    console.log(currentUser, "currentUser");
+    if (!currentUser) return;
 
     const userType = currentUser?.userType;
-    console.log(userType, "userType");
 
     if (userType === "owner") {
-      navigate("/about");
+      navigate("/home");
     } else if (userType === "vet") {
       navigate("/vet/dashboard");
     } else if (userType === "admin") {
