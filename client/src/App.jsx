@@ -32,6 +32,7 @@ import AddReport from "@/routes/Vet/Report/AddReport";
 import ReportsMainVet from "@/routes/Vet/Report/ReportsMainVet";
 import { Toaster } from "@/components/shadcn-components/ui/sonner";
 import RegisterVet from "@/routes/Admin/RegisterVet";
+import ProfileVet from "@/routes/Vet/ProfileVet";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -148,6 +149,7 @@ function App() {
           path: "messages",
           element: <MessagesVet />,
         },
+        { path: "profile", element: <ProfileVet /> },
       ],
     },
     {
@@ -181,8 +183,29 @@ function App() {
       element: <RequireAuth allowedRoles={["owner"]} />,
       children: [
         {
-          path: "/bookAppointment",
-          element: <BookApointment />,
+          path: "/user",
+          children: [
+            {
+              index: true,
+              element: <Navigate to="profile" replace />,
+            },
+            {
+              path: "book",
+              element: <BookApointment />,
+            },
+            {
+              path: "viewMessages",
+              element: <BookApointment />,
+            },
+            {
+              path: "viewRecords",
+              element: <BookApointment />,
+            },
+            {
+              path: "profile",
+              element: <BookApointment />,
+            },
+          ],
         },
       ],
     },

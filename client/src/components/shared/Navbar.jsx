@@ -69,10 +69,34 @@ const Navbar = () => {
               <>
                 <li>
                   <NavLink
-                    to="/bookAppointment"
+                    to="/user/book"
                     className={({ isActive }) => (isActive ? "font-bold" : "")}
                   >
                     Book Appointment
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/user/viewMessages"
+                    className={({ isActive }) => (isActive ? "font-bold" : "")}
+                  >
+                    Messages
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/user/viewRecords"
+                    className={({ isActive }) => (isActive ? "font-bold" : "")}
+                  >
+                    View Records
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/user/profile"
+                    className={({ isActive }) => (isActive ? "font-bold" : "")}
+                  >
+                    Profile
                   </NavLink>
                 </li>
               </>

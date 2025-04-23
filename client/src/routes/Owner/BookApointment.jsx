@@ -155,7 +155,7 @@ const BookAppointment = () => {
       vet: "",
     });
 
-    navigate("/bookAppointment");
+    navigate("/");
   };
 
   const disableBookedDates = (date) => {

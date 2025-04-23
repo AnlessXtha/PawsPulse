@@ -30,6 +30,7 @@ const VetSidebar = () => {
     { name: "Vaccinations", icon: Syringe, path: "/vet/vaccinations" },
     { name: "Notifications", icon: Bell, path: "/vet/notifications" },
     { name: "Messages", icon: MessageSquare, path: "/vet/messages" },
+    
   ];
 
   const logoutHandler = handleLogout(updateUser, navigate);

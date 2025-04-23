@@ -64,10 +64,9 @@ const RegisterVet = () => {
 
   return (
     <>
-      <div className="w-[auto] h-[auto] bg-white flex rounded-lg shadow-lg">
-        <div className="w-[600px] flex justify-center items-center bg-[#A63E4B]"></div>
-        <div className="w-[auto] flex flex-col justify-center p-8">
-          <h1 className="text-3xl font-bold text-[#A63E4B] mb-6 flex justify-center">
+      <div className="w-fit h-[auto] mx-auto bg-white  rounded-lg shadow-lg">
+        <div className="w-fit flex flex-col justify-center p-8">
+          <h1 className="text-3xl font-bold text-[#121827] mb-6 flex justify-center">
             PawsPulse
           </h1>
           <p className="font-bold text-[18px]">Register a Vet</p>
@@ -266,7 +265,7 @@ const RegisterVet = () => {
               <div className="flex col-span-2 justify-end">
                 <Button
                   type="submit"
-                  className="bg-[#A63E4B] text-white py-2 px-3 rounded-[3.2px]"
+                  className="bg-[#121827] text-white py-2 px-3 rounded-[3.2px]"
                 >
                   Register
                 </Button>

@@ -112,6 +112,7 @@ model Appointments {
 
   createdAt  DateTime  @default(now())
   modifiedAt DateTime?
+  report     Reports?
 }
 
 enum Status {
@@ -124,18 +125,20 @@ enum Status {
 // work on Reports
 
 model Reports {
-  reportId     String    @id @default(auto()) @map("_id") @db.ObjectId
-  userId       String    @db.ObjectId
-  vetId        String    @db.ObjectId
-  petProfileId String    @db.ObjectId
-  createdAt    DateTime  @default(now())
-  modifiedAt   DateTime?
+  reportId      String    @id @default(auto()) @map("_id") @db.ObjectId
+  appointmentId String    @unique @db.ObjectId
+  userId        String    @db.ObjectId
+  vetId         String    @db.ObjectId
+  petProfileId  String    @db.ObjectId
+  createdAt     DateTime  @default(now())
+  modifiedAt    DateTime?
 
-  petProfile PetProfile        @relation(fields: [petProfileId], references: [id])
-  vet        Vets              @relation(fields: [vetId], references: [id])
-  user       Users             @relation(fields: [userId], references: [id])
-  diseases   ReportDisease[] // Relation to multiple diseases
-  treatments ReportTreatment[] // Relation to multiple treatments
+  appointment Appointments      @relation(fields: [appointmentId], references: [appointmentId], onDelete: Cascade)
+  petProfile  PetProfile        @relation(fields: [petProfileId], references: [id])
+  vet         Vets              @relation(fields: [vetId], references: [id])
+  user        Users             @relation(fields: [userId], references: [id])
+  diseases    ReportDisease[] // Relation to multiple diseases
+  treatments  ReportTreatment[] // Relation to multiple treatments
 
   temperature     Float?
   heartRate       Int?
