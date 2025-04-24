@@ -195,7 +195,7 @@ function App() {
             },
             {
               path: "viewMessages",
-              element: <BookApointment />,
+              element: <MessagesVet />,
             },
             {
               path: "viewRecords",

@@ -256,63 +256,59 @@ export const updateVet = async (req, res) => {
 export const deleteUser = async (req, res) => {
   const id = req.params.id;
   const tokenUserId = req.userId;
+  const tokenUserType = req.userType;
 
   try {
     const user = await prisma.users.findUnique({
       where: { id },
     });
 
-    if (req.userType === "admin" && tokenUserId !== id) {
-      if (!user) {
-        return res.status(404).json({ message: "User does not exist." });
-      }
+    if (!user) {
+      return res.status(404).json({ message: "User does not exist." });
+    }
 
-      await prisma.$transaction(async (prisma) => {
-        // Check if the user is a vet
-        const vet = await prisma.vets.findUnique({
-          where: { userId: id },
-        });
+    // Admin disabling others (not self)
+    if (tokenUserType === "admin" && tokenUserId !== id) {
+      let newUserType;
+      if (user.userType === "owner") newUserType = "disableOwner";
+      else if (user.userType === "vet") newUserType = "disableVet";
+      else
+        return res
+          .status(400)
+          .json({ message: "Cannot disable this user type." });
 
-        console.log(vet, "vet");
-
-        if (vet) {
-          await prisma.vets.delete({
-            where: { userId: id },
-          });
-        }
-
-        // Check if the user has a pet profile
-        const petProfile = await prisma.petProfile.findUnique({
-          where: { userId: id },
-        });
-
-        if (petProfile) {
-          await prisma.petProfile.delete({
-            where: { userId: id },
-          });
-        }
-
-        // Finally, delete the user
-        await prisma.users.delete({
-          where: { id },
-        });
+      await prisma.users.update({
+        where: { id },
+        data: { userType: newUserType },
       });
 
       return res.status(200).json({
-        message: "User and associated records deleted successfully by admin.",
+        message: `User disabled successfully as ${newUserType}.`,
       });
-    } else {
-      return res.status(403).json({ message: "You are not Authorized!!" });
-      // return res.status(403).json({ message: "Not Authorized!" });
     }
 
-    // await prisma.users.delete({
-    //   where: { id },
-    // });
+    // Owner disabling their own account
+    if (tokenUserType === "owner" && tokenUserId === id) {
+      await prisma.users.update({
+        where: { id },
+        data: { userType: "disableOwner" },
+      });
 
-    // res.status(200).json({ message: "User deleted successfully." });
+      return res.status(200).json({
+        message: "Your account has been disabled.",
+      });
+    }
+
+    // Vets cannot delete their account
+    if (tokenUserType === "vet" && tokenUserId === id) {
+      return res.status(403).json({
+        message: "Vets are not allowed to delete their own account.",
+      });
+    }
+
+    return res.status(403).json({ message: "You are not authorized!!" });
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Failed to delete user." });
+    res.status(500).json({ message: "Failed to disable user." });
   }
 };

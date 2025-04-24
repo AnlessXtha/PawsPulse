@@ -164,3 +164,25 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
   res.clearCookie("token").status(200).json({ message: "Logout Successful" });
 };
+
+export const validateUserFields = async (req, res) => {
+  const { username, email, contactNumber, licenseNumber } = req.body;
+
+  try {
+    const duplicateCheck = await checkExistingUser(
+      username,
+      email,
+      contactNumber,
+      licenseNumber
+    );
+
+    if (duplicateCheck) {
+      return res.status(400).json({ message: duplicateCheck.message });
+    }
+
+    res.status(200).json({ message: "Fields are valid." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Validation failed." });
+  }
+};

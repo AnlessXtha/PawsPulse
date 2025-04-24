@@ -34,7 +34,9 @@ model Users {
 
 enum UserType {
   owner
+  disableOwner
   vet
+  disableVet
   admin
 }
 

@@ -33,6 +33,8 @@ const MessagesVet = () => {
 
   const [chat, setChat] = useState(null);
 
+  console.log("currentUser", currentUser);
+
   useEffect(() => {
     if (chatStatus === "idle") {
       dispatch(fetchChats());
@@ -106,11 +108,19 @@ const MessagesVet = () => {
   }, [chat?.messages]);
 
   return (
-    <div className="flex h-full rounded-md overflow-hidden ">
+    <div
+      className={`flex rounded-md overflow-hidden max-h-full ${
+        currentUser?.userType === "owner"
+          ? "min-h-[calc(100vh-105px)] px-10 py-5"
+          : "h-full"
+      } `}
+    >
       {/* Chat Section */}
       {!chat ? (
         <div
-          className="flex flex-col flex-1 shadow-md items-center justify-center h-full bg-[#a63e4b]/10"
+          className={`flex flex-col flex-1 shadow-md items-center justify-center  bg-[#a63e4b]/10  ${
+            currentUser?.userType === "owner" ? "max-h-full" : "h-full"
+          } `}
           style={{
             background: `url(${bg})`,
             // backgroundSize: "cover",
@@ -124,7 +134,11 @@ const MessagesVet = () => {
         </div>
       ) : (
         <div
-          className="flex flex-col flex-1 max-h-[863px] shadow-md animate-in fade-in-0 slide-in-from-right-10 duration-300"
+          className={`flex flex-col flex-1  shadow-md  ${
+            currentUser?.userType === "owner"
+              ? "max-h-[calc(100vh-155px)] "
+              : "max-h-[835px]"
+          }`}
           style={{
             background: `url(${bg})`,
             // backgroundSize: "cover",

@@ -36,6 +36,7 @@ import {
 } from "@/components/shadcn-components/ui/dropdown-menu";
 import { Input } from "@/components/shadcn-components/ui/input";
 import {
+  deleteVet,
   fetchVets,
   getVetsStatus,
   selectAllVets,
@@ -138,6 +139,14 @@ const VetControl = () => {
     setActionType(type);
   };
 
+  const onDeleteUser = async () => {
+    console.log("Deleting user with ID:", selectedUser.id);
+    await dispatch(deleteVet(selectedUser.id));
+
+    dispatch(fetchVets());
+    setSelectedUser(null);
+  };
+
   return (
     <>
       <h1 className="text-4xl font-bold mb-6">Users Management</h1>
@@ -226,7 +235,12 @@ const VetControl = () => {
               Cancel
             </Button>
             {actionType === "delete" && (
-              <Button variant="destructive">Confirm Delete</Button>
+              <Button
+                variant="destructive"
+                onClick={() => onDeleteUser(selectedUser.id)}
+              >
+                Confirm Delete
+              </Button>
             )}
           </div>
         </DialogContent>

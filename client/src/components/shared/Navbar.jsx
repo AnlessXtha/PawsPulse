@@ -46,11 +46,11 @@ const Navbar = () => {
 
       <nav className="flex justify-between items-center py-6 px-14 bg-[#A63E4B] text-primary-foreground">
         <h1 className="font-semibold text-[24px]">PawsPulse</h1>
-        <div className="flex gap-15 items-center">
+        <div className="flex gap-5 items-center">
           <ul className="flex gap-15 list-none text-[18px]">
             <li>
               <NavLink
-                to="/"
+                to="/home"
                 className={({ isActive }) => (isActive ? "font-bold" : "")}
               >
                 Home

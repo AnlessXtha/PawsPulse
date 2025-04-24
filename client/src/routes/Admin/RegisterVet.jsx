@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { vetRegisterSchema } from "@/schema/RegisterVetSchema";
-import { addVet } from "@/redux/slices/vetSlice";
+import { addVet, fetchVets } from "@/redux/slices/vetSlice";
 import { useDispatch } from "react-redux";
 import {
   Select,
@@ -71,6 +71,8 @@ const RegisterVet = () => {
         form.setValue("avatar", undefined);
 
         setAvatar([]);
+
+        dispatch(fetchVets());
       }
     } catch (err) {
       console.log(err.response?.data?.message || "Failed to register vet");

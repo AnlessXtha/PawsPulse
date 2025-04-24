@@ -8,8 +8,11 @@ import {
 } from "@/components/shadcn-components/ui/form";
 import { Input } from "@/components/shadcn-components/ui/input";
 import StepBar from "@/components/shared/StepBar";
+import { createApiClient } from "@/lib/createApiClient";
+import { showToast } from "@/lib/toastUtils";
 import { userSchema } from "@/schema/RegisterOwnerSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -31,8 +34,23 @@ const Register = () => {
   // console.log("errors", errors);
 
   const onNext = async (data) => {
-    // console.log("submitted");
-    navigate("/register/pet", { state: { userData: data } });
+    const api = createApiClient("http://localhost:8805/api/");
+    try {
+      const response = await api.post("/auth/validate-user", {
+        username: data.username,
+        email: data.email,
+        contactNumber: data.contactNumber,
+        licenseNumber: null, // if needed for vet validation later
+      });
+
+      console.log("Validation response: ", response.data);
+
+      // Proceed only if validation is successful
+      navigate("/register/pet", { state: { userData: data } });
+    } catch (error) {
+      const errMsg = error.response?.data?.message || "Validation failed.";
+      showToast("Validation error ", errMsg, "error");
+    }
   };
 
   const navigate = useNavigate();

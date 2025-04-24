@@ -21,13 +21,7 @@ export const fetchVets = createAsyncThunk("profiles/fetchVets", async () => {
 
     return [...response.data.vets];
   } catch (error) {
-    // for toast message
-    // addToast({
-    //   id: generateUniqueId(),
-    //   title: `${error?.response?.data?.message}`,
-    //   text: `${error?.response?.data?.description}`,
-    //   color: "danger",
-    // });
+    showToast("An error has ocurred", error?.response?.data?.message, "error");
     console.log("Error: ", error);
     throw error;
   }
@@ -40,6 +34,27 @@ export const addVet = createAsyncThunk(
       const response = await userApiClient.post("/auth/register/", newVetData);
       showToast("Vet registered", response?.data?.message, "success");
       return response.data;
+    } catch (error) {
+      showToast(
+        "An error has ocurred",
+        error?.response?.data?.message,
+        "error"
+      );
+      console.error("Error registering vet:", error);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to register vet"
+      );
+    }
+  }
+);
+
+export const deleteVet = createAsyncThunk(
+  "vets/deleteVet",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await userApiClient.delete(`/users/${id}`);
+      showToast("Vet Deleted", response?.data?.message, "success");
+      return response;
     } catch (error) {
       console.error("Error registering vet:", error);
       return rejectWithValue(
@@ -90,6 +105,9 @@ export const vetSlice = createSlice({
       .addCase(addVet.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload || "Failed to register vet";
+      })
+      .addCase(deleteVet.fulfilled, (state, action) => {
+        state.status = "successful";
       });
   },
 });
