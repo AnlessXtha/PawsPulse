@@ -111,7 +111,7 @@ const AddReport = () => {
           durationDays: Number(t.durationDays),
           purpose: t.purpose,
         })),
-        vetNotes: "Optional General Vet Notes",
+        vetNotes: data.vetNotes,
       };
 
       console.log("Payload:", payload);
@@ -448,6 +448,26 @@ const AddReport = () => {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* Final Vet Notes*/}
+          <div className="grid gap-4">
+            <FormField
+              name="vetNotes"
+              control={control}
+              render={({ field }) => (
+                <FormItem className="gap-2">
+                  <FormLabel>Vet Notes</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="Final notes for report"
+                      className={`h-30`}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
 
           <div className="text-right">
