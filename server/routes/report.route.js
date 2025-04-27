@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyToken } from "../middleware/verifyToken.js";
+import { shouldBeAdmin, verifyToken } from "../middleware/authMiddleware.js";
 import {
   getReports,
   getReport,
@@ -10,8 +10,8 @@ import {
 
 const router = express.Router();
 
-router.get("/", getReports);
-router.get("/:id", getReport);
+router.get("/", verifyToken, getReports);
+router.get("/:id", verifyToken, getReport);
 router.post("/", verifyToken, createReport);
 router.put("/:id", verifyToken, updateReport);
 router.delete("/:id", verifyToken, deleteReport);

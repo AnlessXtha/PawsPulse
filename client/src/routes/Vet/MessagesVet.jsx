@@ -111,7 +111,7 @@ const MessagesVet = () => {
     <div
       className={`flex rounded-md overflow-hidden max-h-full ${
         currentUser?.userType === "owner"
-          ? "min-h-[calc(100vh-105px)] px-10 py-5"
+          ? "min-h-[calc(100vh-105px)] p-6"
           : "h-full"
       } `}
     >
@@ -148,12 +148,12 @@ const MessagesVet = () => {
         >
           <h1 className="text-lg text-gray-100 font-medium p-3 flex gap-2 items-center backdrop-blur-2x1 bg-[#a63e4b]/80 ">
             <Avatar>
-              <AvatarImage src={chat?.receiver.avatar} />
+              <AvatarImage />
               <AvatarFallback className={"text-black"}>
-                {chat?.receiver?.firstName.charAt(0)}
+                {chat?.receiver.firstName.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            {chat?.receiver.firstName} {chat?.receiver.lastName}
+            {chat?.receiver?.firstName} {chat?.receiver?.lastName}
           </h1>
           {/* <hr className="border-gray-500" /> */}
           <ScrollArea className="flex-1 overflow-y-auto space-y-4 p-4 bg-[#a63e4b]/10 animate-in fade-in-0 slide-in-from-right-10 duration-300 scrollbar-hide">
@@ -175,7 +175,7 @@ const MessagesVet = () => {
                       <>
                         <Avatar>
                           <AvatarFallback>
-                            {chat.receiver.firstName.charAt(0)}
+                            {chat?.receiver?.firstName.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
 
@@ -211,7 +211,7 @@ const MessagesVet = () => {
 
                         <Avatar>
                           <AvatarFallback>
-                            {currentUser.firstName.charAt(0)}
+                            {currentUser?.firstName.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                       </>
@@ -256,12 +256,12 @@ const MessagesVet = () => {
               >
                 <Avatar>
                   <AvatarFallback className={`${isSelected && "text-black"}`}>
-                    {chatContent.receiver.firstName.charAt(0)}
+                    {chatContent.receiver?.firstName.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <span>
-                  {chatContent.receiver.firstName}{" "}
-                  {chatContent.receiver.lastName}
+                  {chatContent.receiver?.firstName}{" "}
+                  {chatContent.receiver?.lastName}
                 </span>
               </div>
             );

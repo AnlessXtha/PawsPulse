@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import {
   Form,
@@ -6,7 +6,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/shadcn-components/ui/form";
 import { Input } from "@/components/shadcn-components/ui/input";
 import { Button } from "@/components/shadcn-components/ui/button";
@@ -18,8 +17,25 @@ import {
   SelectItem,
   SelectContent,
 } from "@/components/shadcn-components/ui/select";
+import { useDispatch, useSelector } from "react-redux";
+import { addReport } from "@/redux/slices/reportSlice";
+import { AuthContext } from "@/context/AuthContext";
+import { fetchSinglePet, getSinglePet } from "@/redux/slices/petSlice";
+import { getSingleAppointment } from "@/redux/slices/appointmentSlice";
 
 const AddReport = () => {
+  const dispatch = useDispatch();
+  const { currentUser } = useContext(AuthContext);
+  const pet = useSelector(getSinglePet);
+  const currentAppointment = useSelector(getSingleAppointment);
+
+  useEffect(() => {
+    dispatch(fetchSinglePet(currentAppointment?.petProfileId));
+  }, [currentAppointment, dispatch]);
+
+  console.log(currentAppointment, "currentAppointment");
+  console.log(pet, "pet");
+
   const form = useForm({
     defaultValues: {
       petName: "Rocky",
@@ -35,7 +51,7 @@ const AddReport = () => {
           cureTrial: "",
           effectOfTrial: "",
           effectiveness: "mid",
-          vetNotes: "",
+          diseaseRemarks: "",
           treatmentStartDate: "",
           treatmentEndDate: "",
         },
@@ -49,6 +65,7 @@ const AddReport = () => {
           purpose: "",
         },
       ],
+      vetNotes: "",
     },
   });
 
@@ -65,8 +82,46 @@ const AddReport = () => {
     remove: removeTreatment,
   } = useFieldArray({ control, name: "treatments" });
 
-  const onSubmit = (data) => {
-    console.log("Report Submitted:", data);
+  const onSubmit = async (data) => {
+    try {
+      const payload = {
+        appointmentId: currentAppointment?.appointmentId,
+        userId: pet?.userId,
+        petProfileId: currentAppointment?.petProfileId,
+        temperature: Number(data.temperature),
+        heartRate: Number(data.heartRate),
+        respiratoryRate: Number(data.respiratoryRate),
+        symptoms: data.symptoms[0]?.split(",").map((s) => s.trim()),
+        recommendations: data.recommendations[0]
+          ?.split(",")
+          .map((s) => s.trim()),
+        diseases: data.diseases.map((d) => ({
+          diseaseName: d.diseaseName,
+          cureTrial: d.cureTrial,
+          effectOfTrial: d.effectOfTrial,
+          effectiveness: d.effectiveness,
+          diseaseRemarks: d.diseaseRemarks,
+          treatmentStartDate: d.treatmentStartDate || new Date().toISOString(),
+          treatmentEndDate: d.treatmentEndDate || null,
+        })),
+        treatments: data.treatments.map((t) => ({
+          medicationName: t.medicationName,
+          dosage: t.dosage,
+          frequency: t.frequency,
+          durationDays: Number(t.durationDays),
+          purpose: t.purpose,
+        })),
+        vetNotes: "Optional General Vet Notes",
+      };
+
+      console.log("Payload:", payload);
+
+      await dispatch(addReport(payload)).unwrap();
+      console.log("Report successfully submitted!");
+      // Optionally reset the form here
+    } catch (error) {
+      console.error("Failed to submit report:", error);
+    }
   };
 
   return (
@@ -242,7 +297,7 @@ const AddReport = () => {
                     )}
                   />
                   <FormField
-                    name={`diseases.${index}.vetNotes`}
+                    name={`diseases.${index}.diseaseRemarks`}
                     control={control}
                     render={({ field }) => (
                       <FormItem className="gap-2">

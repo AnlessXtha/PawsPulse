@@ -33,6 +33,7 @@ import ReportsMainVet from "@/routes/Vet/Report/ReportsMainVet";
 import { Toaster } from "@/components/shadcn-components/ui/sonner";
 import RegisterVet from "@/routes/Admin/RegisterVet";
 import ProfileVet from "@/routes/Vet/ProfileVet";
+import OwnerProfile from "@/routes/Owner/OwnerProfile";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -203,7 +204,7 @@ function App() {
             },
             {
               path: "profile",
-              element: <BookApointment />,
+              element: <OwnerProfile />,
             },
           ],
         },

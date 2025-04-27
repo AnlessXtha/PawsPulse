@@ -29,7 +29,6 @@ export const fetchSingleChat = createAsyncThunk(
     try {
       const response = await chatApiClient.get(`/${id}`);
       console.log("Fetched single chat:", response.data);
-
       return response.data.chat;
     } catch (error) {
       console.error("Error fetching single chat:", error);
@@ -37,6 +36,16 @@ export const fetchSingleChat = createAsyncThunk(
     }
   }
 );
+
+export const addChat = createAsyncThunk("chats/addChat", async (receiverId) => {
+  try {
+    const response = await chatApiClient.post("/", { receiverId });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error adding chat:", error);
+  }
+});
 
 export const chatSlice = createSlice({
   name: "chats",
@@ -57,6 +66,14 @@ export const chatSlice = createSlice({
       })
       .addCase(fetchSingleChat.fulfilled, (state, action) => {
         state.singleChat = action.payload;
+      })
+      .addCase(addChat.fulfilled, (state, action) => {
+        state.status = "successful";
+        state.chats.push(action.payload);
+      })
+      .addCase(addChat.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload || "Failed to add chat";
       });
   },
 });

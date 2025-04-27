@@ -104,10 +104,15 @@ export const getAppointment = async (req, res) => {
       return res.status(404).json({ message: "Appointment not found." });
     }
 
+    const vetUser = await prisma.users.findUnique({
+      where: { id: tokenUserId },
+      include: { vet: true },
+    });
+
     if (
       tokenUserType !== "admin" &&
       appointment.userId !== tokenUserId &&
-      appointment.vetId !== tokenUserId
+      appointment.vetId !== vetUser?.vet.id
     ) {
       return res.status(403).json({ message: "Access denied." });
     }

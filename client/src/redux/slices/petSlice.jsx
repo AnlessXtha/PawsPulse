@@ -37,7 +37,7 @@ export const fetchSinglePet = createAsyncThunk(
   async (id) => {
     try {
       const response = await petApiClient.get(`/${id}`);
-      // console.log("response: ", response.data);
+      console.log("response: ", response.data);
 
       return response.data.pet;
     } catch (error) {
@@ -52,7 +52,7 @@ export const fetchSinglePetByUserId = createAsyncThunk(
   async (id) => {
     try {
       const response = await petApiClient.get(`/user/${id}`);
-      // console.log("response: ", response.data);
+      console.log("response: ", response.data);
 
       return response.data.pet;
     } catch (error) {
@@ -93,6 +93,7 @@ export const petslice = createSlice({
       })
       .addCase(fetchSinglePet.fulfilled, (state, action) => {
         state.singlePet = action.payload;
+        console.log("singlePet: ", action.payload);
       })
       .addCase(fetchSinglePetByUserId.fulfilled, (state, action) => {
         state.currentPet = action.payload;

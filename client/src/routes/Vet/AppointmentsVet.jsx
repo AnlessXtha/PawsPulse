@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAppointments,
+  fetchSingleAppointment,
   getAppointmentsStatus,
   selectAllAppointments,
   updateAppointment,
@@ -136,6 +137,14 @@ const AppointmentsVet = () => {
     await dispatch(fetchAppointments());
 
     console.log("Saved Appointment Details:", payload);
+  };
+  const onGenerateReport = async () => {
+    if (!appointmentDetails || appointmentDetails === "none") return;
+
+    console.log(appointmentDetails, "appointmentDetails");
+
+    await dispatch(fetchSingleAppointment(appointmentDetails?.appointmentId));
+    navigate("/vet/appointments/addReport");
   };
 
   return (
@@ -359,8 +368,7 @@ const AppointmentsVet = () => {
                         !selectedDate
                       }
                       onClick={() => {
-                        console.log("Generate Report clicked");
-                        navigate("/vet/appointments/addReport");
+                        onGenerateReport();
                       }}
                     >
                       Generate a Report

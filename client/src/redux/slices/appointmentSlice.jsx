@@ -35,9 +35,9 @@ export const fetchSingleAppointment = createAsyncThunk(
     try {
       const response = await appointmentApiClient.get(`/${id}`);
 
-      // console.log("Appointment response: ", response.data);
+      console.log("Appointment response: ", response.data);
 
-      return response.data.appointment;
+      return response.data;
     } catch (error) {
       console.log("Error: ", error);
       throw error;

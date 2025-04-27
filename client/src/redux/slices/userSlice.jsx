@@ -1,9 +1,7 @@
 import { createApiClient } from "@/lib/createApiClient";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import { createApiClient } from "../services/creatApiClient";
 
 const BASE_USER_URL = "http://localhost:8805/api/users";
-
 const userApiClient = createApiClient(BASE_USER_URL);
 
 const initialState = {
@@ -16,20 +14,38 @@ const initialState = {
 export const fetchUsers = createAsyncThunk("profiles/fetchUsers", async () => {
   try {
     const response = await userApiClient.get("/");
-
     return [...response.data.users];
   } catch (error) {
-    // for toast message
-    // addToast({
-    //   id: generateUniqueId(),
-    //   title: `${error?.response?.data?.message}`,
-    //   text: `${error?.response?.data?.description}`,
-    //   color: "danger",
-    // });
     console.log("Error: ", error);
     throw error;
   }
 });
+
+export const getSingleUser = createAsyncThunk(
+  "profiles/getSingleUser",
+  async (id) => {
+    try {
+      const response = await userApiClient.get(`/${id}`);
+      return response.data;
+    } catch (error) {
+      console.log("Error: ", error);
+      throw error;
+    }
+  }
+);
+
+export const deleteUserById = createAsyncThunk(
+  "profiles/deleteUserById",
+  async (id) => {
+    try {
+      const response = await userApiClient.delete(`/${id}`);
+      return response.data;
+    } catch (error) {
+      console.log("Error: ", error);
+      throw error;
+    }
+  }
+);
 
 export const userSlice = createSlice({
   name: "users",
@@ -42,23 +58,17 @@ export const userSlice = createSlice({
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.status = "successful";
-
-        // let typeFullForm: string;
-        const loadedUsers = action.payload;
-
-        // Sorting the Users by date in descending order
-        // loadedUsers.sort((a: any, b: any) => {
-        //   const dateA = new Date(a.created_at);
-        //   const dateB = new Date(b.created_at);
-
-        //   return dateB.getTime() - dateA.getTime();
-        // });
-
-        state.users = [...loadedUsers];
+        state.users = [...action.payload];
       })
       .addCase(fetchUsers.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message || "Unknown error";
+      })
+      .addCase(getSingleUser.fulfilled, (state, action) => {
+        state.singleUser = action.payload;
+      })
+      .addCase(deleteUserById.fulfilled, (state) => {
+        state.singleUser = null;
       });
   },
 });
@@ -66,5 +76,6 @@ export const userSlice = createSlice({
 export const selectAllUsers = (state) => state.users.users;
 export const getUsersStatus = (state) => state.users.status;
 export const getUsersError = (state) => state.users.error;
+export const selectSingleUser = (state) => state.users.singleUser;
 
 export default userSlice.reducer;
