@@ -130,9 +130,35 @@ export const getReports = async (req, res) => {
   try {
     let reports;
 
+    const baseInclude = {
+      diseases: true,
+      treatments: true,
+      petProfile: {
+        select: {
+          petName: true,
+        },
+      },
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+      vet: {
+        select: {
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      },
+    };
+
     if (tokenUserType === "admin" || analysis === "true") {
       reports = await prisma.reports.findMany({
-        include: { diseases: true, treatments: true },
+        include: baseInclude,
       });
     } else if (tokenUserType === "vet") {
       const vetUser = await prisma.users.findUnique({
@@ -142,12 +168,12 @@ export const getReports = async (req, res) => {
 
       reports = await prisma.reports.findMany({
         where: { vetId: vetUser.vet.id },
-        include: { diseases: true, treatments: true },
+        include: baseInclude,
       });
     } else if (tokenUserType === "owner") {
       reports = await prisma.reports.findMany({
         where: { userId: tokenUserId },
-        include: { diseases: true, treatments: true },
+        include: baseInclude,
       });
     } else {
       return res.status(403).json({ message: "Unauthorized access." });
@@ -168,7 +194,7 @@ export const getReport = async (req, res) => {
 
   try {
     const report = await prisma.reports.findUnique({
-      where: { id },
+      where: { reportId: id },
       include: { diseases: true, treatments: true },
     });
 
@@ -176,13 +202,17 @@ export const getReport = async (req, res) => {
       return res.status(404).json({ message: "Report not found." });
     }
 
-    if (tokenUserType === "admin") {
-      // allow
-    } else if (tokenUserType === "vet" && report.vetId === tokenUserId) {
-      // allow
-    } else if (tokenUserType === "owner" && report.userId === tokenUserId) {
-      // allow
-    } else {
+    const vetUser = await prisma.users.findUnique({
+      where: { id: tokenUserId },
+      include: { vet: true },
+    });
+
+    const isAuthorized =
+      tokenUserType === "admin" ||
+      (tokenUserType === "vet" && report.vetId === vetUser.vet.id) ||
+      (tokenUserType === "owner" && report.userId === tokenUserId);
+
+    if (!isAuthorized) {
       return res
         .status(403)
         .json({ message: "Unauthorized access to report." });

@@ -17,6 +17,7 @@ export const fetchReports = createAsyncThunk(
   async () => {
     try {
       const response = await reportApiClient.get("/");
+      console.log("Fetched reports:", response.data.reports);
       return [...response.data.reports];
     } catch (error) {
       console.error("Error fetching reports:", error);
