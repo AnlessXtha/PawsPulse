@@ -1,20 +1,14 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Input } from "@/components/shadcn-components/ui/input";
-import { Button } from "@/components/shadcn-components/ui/button";
 import { getSingleUser, selectSingleUser } from "@/redux/slices/userSlice";
 import { AuthContext } from "@/context/AuthContext";
-import { createApiClient } from "@/lib/createApiClient";
 
-const ProfileVet = () => {
+const ProfileAdmin = () => {
   const dispatch = useDispatch();
   const { currentUser } = useContext(AuthContext);
 
   const user = useSelector(selectSingleUser);
-  const [newPassword, setNewPassword] = useState("");
-
-  const BASE_USER_URL = "http://localhost:8805/api/users";
-  const userApiClient = createApiClient(BASE_USER_URL);
 
   useEffect(() => {
     if (currentUser?.id) {
@@ -22,32 +16,13 @@ const ProfileVet = () => {
     }
   }, [dispatch, currentUser]);
 
-  const handleUpdatePassword = async () => {
-    try {
-      if (!newPassword.trim()) {
-        alert("Please enter a new password!");
-        return;
-      }
-
-      await userApiClient.patch(`/${currentUser.id}`, {
-        password: newPassword,
-      });
-
-      alert("Password updated successfully!");
-      setNewPassword("");
-    } catch (error) {
-      console.error("Failed to update password", error);
-      alert("Failed to update password.");
-    }
-  };
-
   if (!user) {
     return <div className="p-8 text-center">Loading...</div>;
   }
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">Vet Profile</h1>
+      <h1 className="text-3xl font-bold mb-8 text-center">Admin Profile</h1>
 
       <div className="bg-white rounded-lg shadow p-6 space-y-6">
         <div>
@@ -76,28 +51,9 @@ const ProfileVet = () => {
           </label>
           <Input value={user.contactNumber || ""} disabled />
         </div>
-
-        <div>
-          <label className="block text-sm font-semibold mb-1">
-            New Password
-          </label>
-          <Input
-            type="password"
-            placeholder="Enter new password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-        </div>
-
-        <Button
-          className="w-full bg-[#a63e4b] text-white mt-4"
-          onClick={handleUpdatePassword}
-        >
-          Update Password
-        </Button>
       </div>
     </div>
   );
 };
 
-export default ProfileVet;
+export default ProfileAdmin;

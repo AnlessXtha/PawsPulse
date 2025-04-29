@@ -5,7 +5,6 @@ import {
 } from "react-router-dom";
 import OurServicesPage from "./routes/OurServicesPage";
 import { Layout, RequireAuth } from "@/routes/Layouts/Layout";
-import ProfilePage from "@/routes/ProfilePage";
 import Login from "@/routes/Login";
 import Register from "@/routes/Register";
 import HomePage from "@/routes/HomePage";
@@ -24,7 +23,6 @@ import BookApointment from "@/routes/Owner/BookApointment";
 import VetLayout from "@/routes/Layouts/VetLayout";
 import AnalyticBoard from "@/routes/Vet/AnalyticBoard";
 import VaccinationsVet from "@/routes/Vet/VaccinationsVet";
-import NotificationVet from "@/routes/Vet/NotificationVet";
 import MessagesVet from "@/routes/Vet/MessagesVet";
 import RedirectBasedOnRole from "@/routes/RedirectBasedOnRole";
 import AppointmentsVet from "@/routes/Vet/AppointmentsVet";
@@ -36,6 +34,8 @@ import ProfileVet from "@/routes/Vet/ProfileVet";
 import OwnerProfile from "@/routes/Owner/OwnerProfile";
 import UpdateReport from "@/routes/Vet/Report/UpdateReport";
 import ViewAppointments from "@/routes/Owner/ViewAppoiments";
+import NotificationPage from "@/components/components/Notification";
+import ProfileAdmin from "@/routes/Admin/ProfileAdmin";
 
 function App() {
   const { currentUser } = useContext(AuthContext);
@@ -151,7 +151,7 @@ function App() {
         },
         {
           path: "notifications",
-          element: <NotificationVet />,
+          element: <NotificationPage />,
         },
         {
           path: "messages",
@@ -182,6 +182,7 @@ function App() {
             { path: "vetControl", element: <VetControl /> },
             { path: "appointmentControl", element: <AppointmentControl /> },
             { path: "register-vet", element: <RegisterVet /> },
+            { path: "profile", element: <ProfileAdmin /> },
           ],
         },
       ],
@@ -212,6 +213,10 @@ function App() {
             {
               path: "profile",
               element: <OwnerProfile />,
+            },
+            {
+              path: "notification",
+              element: <NotificationPage />,
             },
           ],
         },

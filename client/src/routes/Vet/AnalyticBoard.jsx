@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -13,7 +13,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
-import { Card, CardContent } from "@/components/shadcn-components/ui/card";
+import { Card } from "@/components/shadcn-components/ui/card";
 import { Button } from "@/components/shadcn-components/ui/button";
 import {
   Dialog,
@@ -29,19 +29,12 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/shadcn-components/ui/select";
-
-const sampleDiseaseData = [
-  { disease: "Canine Parvovirus", count: 10 },
-  { disease: "Rabies", count: 7 },
-  { disease: "Feline Leukemia", count: 5 },
-  { disease: "Distemper", count: 4 },
-];
-
-const breedDiseaseData = [
-  { breed: "German Shepherd", disease: "Canine Parvovirus", count: 5 },
-  { breed: "Labrador", disease: "Rabies", count: 3 },
-  { breed: "Persian Cat", disease: "Feline Leukemia", count: 4 },
-];
+import { useDispatch, useSelector } from "react-redux";
+import { fetchReports, selectAllReports } from "@/redux/slices/reportSlice";
+import {
+  fetchAppointments,
+  selectAllAppointments,
+} from "@/redux/slices/appointmentSlice";
 
 const chartTypes = {
   line: LineChart,
@@ -50,33 +43,56 @@ const chartTypes = {
 };
 
 const AnalyticBoard = () => {
-  const [charts, setCharts] = useState([
-    {
-      id: "timeline",
-      type: "line",
-      title: "Disease Over Timeline",
-      data: sampleDiseaseData,
-      xKey: "disease",
-      yKey: "count",
-    },
-    {
-      id: "common-disease",
-      type: "bar",
-      title: "Most Common Diseases",
-      data: sampleDiseaseData,
-      xKey: "disease",
-      yKey: "count",
-    },
-    {
-      id: "breed-wise",
-      type: "bar",
-      title: "Breed-wise Disease Count",
-      data: breedDiseaseData,
-      xKey: "breed",
-      yKey: "count",
-    },
-  ]);
+  const dispatch = useDispatch();
+  const allReports = useSelector(selectAllReports);
+  const allAppointments = useSelector(selectAllAppointments);
 
+  useEffect(() => {
+    dispatch(fetchReports());
+    dispatch(fetchAppointments());
+  }, [dispatch]);
+
+  const getDiseaseCounts = () => {
+    const diseaseMap = {};
+    allReports.forEach((report) => {
+      report.diseases?.forEach((d) => {
+        diseaseMap[d.diseaseName] = (diseaseMap[d.diseaseName] || 0) + 1;
+      });
+    });
+    return Object.entries(diseaseMap).map(([disease, count]) => ({
+      disease,
+      count,
+    }));
+  };
+
+  const getBreedWiseDiseaseCounts = () => {
+    const breedMap = {};
+    allReports.forEach((report) => {
+      report.diseases?.forEach((d) => {
+        const breed = report.petProfile?.petBreed || "Unknown";
+        const key = `${breed}_${d.diseaseName}`;
+        breedMap[key] = (breedMap[key] || 0) + 1;
+      });
+    });
+    return Object.entries(breedMap).map(([key, count]) => {
+      const [breed, disease] = key.split("_");
+      return { breed, disease, count };
+    });
+  };
+
+  const getDailyPatientGrowth = () => {
+    const dateMap = {};
+    allAppointments.forEach((appt) => {
+      const date = new Date(appt.appointmentDate).toLocaleDateString();
+      dateMap[date] = (dateMap[date] || 0) + 1;
+    });
+    return Object.entries(dateMap).map(([day, patients]) => ({
+      day,
+      patients,
+    }));
+  };
+
+  const [charts, setCharts] = useState([]);
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [chartToRemove, setChartToRemove] = useState(null);
@@ -85,7 +101,37 @@ const AnalyticBoard = () => {
     title: "",
     xKey: "",
     yKey: "",
+    source: "diseases",
   });
+
+  useEffect(() => {
+    setCharts([
+      {
+        id: "disease-count",
+        type: "bar",
+        title: "Most Common Diseases",
+        data: getDiseaseCounts(),
+        xKey: "disease",
+        yKey: "count",
+      },
+      {
+        id: "breed-wise",
+        type: "bar",
+        title: "Breed-wise Disease Count",
+        data: getBreedWiseDiseaseCounts(),
+        xKey: "breed",
+        yKey: "count",
+      },
+      {
+        id: "daily-patient",
+        type: "line",
+        title: "Patient Appointments (Daily)",
+        data: getDailyPatientGrowth(),
+        xKey: "day",
+        yKey: "patients",
+      },
+    ]);
+  }, [allReports, allAppointments]);
 
   const handleRemove = (id) => {
     setChartToRemove(id);
@@ -102,14 +148,24 @@ const AnalyticBoard = () => {
     const id = `${newChart.title
       .toLowerCase()
       .replace(/\s+/g, "-")}-${Date.now()}`;
-    setCharts([...charts, { ...newChart, id, data: sampleDiseaseData }]);
-    setNewChart({ type: "bar", title: "", xKey: "", yKey: "" });
+    let data = [];
+    if (newChart.source === "diseases") data = getDiseaseCounts();
+    else if (newChart.source === "breed") data = getBreedWiseDiseaseCounts();
+    else if (newChart.source === "appointments") data = getDailyPatientGrowth();
+
+    setCharts([...charts, { ...newChart, id, data }]);
+    setNewChart({
+      type: "bar",
+      title: "",
+      xKey: "",
+      yKey: "",
+      source: "diseases",
+    });
     setShowAddDialog(false);
   };
 
   const renderChart = (chart) => {
     const ChartComponent = chartTypes[chart.type];
-
     return (
       <ResponsiveContainer width="100%" height={400}>
         {chart.type === "pie" ? (
@@ -154,7 +210,6 @@ const AnalyticBoard = () => {
         <h1 className="text-4xl font-bold">Analytic Board</h1>
         <Button onClick={() => setShowAddDialog(true)}>Add Chart</Button>
       </div>
-
       <div className="grid grid-cols-2 gap-6">
         {charts.map((chart) => (
           <Card key={chart.id} className="p-4 bg-white shadow-md">
@@ -168,7 +223,6 @@ const AnalyticBoard = () => {
           </Card>
         ))}
       </div>
-
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="w-[90vw] max-w-md">
           <DialogHeader>
@@ -190,27 +244,44 @@ const AnalyticBoard = () => {
                 <SelectItem value="pie">Pie Chart</SelectItem>
               </SelectContent>
             </Select>
-            <Input
-              placeholder="Chart Title"
-              value={newChart.title}
-              onChange={(e) =>
-                setNewChart((prev) => ({ ...prev, title: e.target.value }))
+            <Select
+              value={newChart.source}
+              onValueChange={(val) =>
+                setNewChart((prev) => ({ ...prev, source: val }))
               }
-            />
-            <Input
-              placeholder="X Label (e.g., disease)"
-              value={newChart.xKey}
-              onChange={(e) =>
-                setNewChart((prev) => ({ ...prev, xKey: e.target.value }))
-              }
-            />
-            <Input
-              placeholder="Y Label (e.g., count)"
-              value={newChart.yKey}
-              onChange={(e) =>
-                setNewChart((prev) => ({ ...prev, yKey: e.target.value }))
-              }
-            />
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select data source" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="diseases">Diseases</SelectItem>
+                <SelectItem value="breed">Breed-wise</SelectItem>
+                <SelectItem value="appointments">Appointments</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="flex flex-col gap-2">
+              <Input
+                placeholder="Chart Title"
+                value={newChart.title}
+                onChange={(e) =>
+                  setNewChart((prev) => ({ ...prev, title: e.target.value }))
+                }
+              />
+              <Input
+                placeholder="X Label (e.g., disease)"
+                value={newChart.xKey}
+                onChange={(e) =>
+                  setNewChart((prev) => ({ ...prev, xKey: e.target.value }))
+                }
+              />
+              <Input
+                placeholder="Y Label (e.g., count)"
+                value={newChart.yKey}
+                onChange={(e) =>
+                  setNewChart((prev) => ({ ...prev, yKey: e.target.value }))
+                }
+              />
+            </div>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowAddDialog(false)}>
                 Cancel
@@ -225,7 +296,6 @@ const AnalyticBoard = () => {
           </div>
         </DialogContent>
       </Dialog>
-
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent className="max-w-sm">
           <DialogHeader>

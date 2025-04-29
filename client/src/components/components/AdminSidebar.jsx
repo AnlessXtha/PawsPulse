@@ -71,7 +71,7 @@ const AdminSidebar = () => {
       </div>
       <div>
         <NavLink
-          to="/profile"
+          to="/admin/profile"
           className={({ isActive }) =>
             `flex items-center gap-3 w-full text-left ${
               isSidebarOpen ? "py-4 px-3" : "my-1 py-4 px-3.5"
