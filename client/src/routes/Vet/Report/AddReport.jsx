@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import {
   Form,
@@ -6,6 +6,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/shadcn-components/ui/form";
 import { Input } from "@/components/shadcn-components/ui/input";
 import { Button } from "@/components/shadcn-components/ui/button";
@@ -22,9 +23,14 @@ import { addReport } from "@/redux/slices/reportSlice";
 import { AuthContext } from "@/context/AuthContext";
 import { fetchSinglePet, getSinglePet } from "@/redux/slices/petSlice";
 import { getSingleAppointment } from "@/redux/slices/appointmentSlice";
+import { reportSchema } from "@/schema/ReportSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 
 const AddReport = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { currentUser } = useContext(AuthContext);
   const pet = useSelector(getSinglePet);
   const currentAppointment = useSelector(getSingleAppointment);
@@ -38,8 +44,8 @@ const AddReport = () => {
 
   const form = useForm({
     defaultValues: {
-      petName: "Rocky",
-      ownerName: "milan_dove",
+      petName: "",
+      ownerName: "",
       temperature: "",
       heartRate: "",
       respiratoryRate: "",
@@ -67,6 +73,8 @@ const AddReport = () => {
       ],
       vetNotes: "",
     },
+    resolver: zodResolver(reportSchema),
+    mode: "onTouched",
   });
 
   const { control, handleSubmit } = form;
@@ -81,6 +89,15 @@ const AddReport = () => {
     append: appendTreatment,
     remove: removeTreatment,
   } = useFieldArray({ control, name: "treatments" });
+
+  useEffect(() => {
+    if (pet) {
+      form.reset({
+        petName: pet?.petName || "",
+        ownerName: `${pet.user?.firstName || ""} ${pet.user?.lastName || ""}`,
+      });
+    }
+  }, [pet, form]);
 
   const onSubmit = async (data) => {
     try {
@@ -118,10 +135,15 @@ const AddReport = () => {
 
       await dispatch(addReport(payload)).unwrap();
       console.log("Report successfully submitted!");
-      // Optionally reset the form here
+      navigate("/vet/appointments");
     } catch (error) {
       console.error("Failed to submit report:", error);
     }
+  };
+
+  const onCancel = () => {
+    form.reset();
+    navigate("/vet/appointments");
   };
 
   return (
@@ -130,7 +152,7 @@ const AddReport = () => {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Pet Info */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <FormField
               name="petName"
               control={control}
@@ -138,23 +160,61 @@ const AddReport = () => {
                 <FormItem className="gap-2">
                   <FormLabel>Pet Name</FormLabel>
                   <FormControl>
-                    <Input disabled {...field} />
+                    <Input disabled value={pet?.petName || ""} {...field} />
                   </FormControl>
                 </FormItem>
               )}
             />
+
             <FormField
               name="ownerName"
               control={control}
               render={({ field }) => (
                 <FormItem className="gap-2">
-                  <FormLabel>Owner</FormLabel>
+                  <FormLabel>Owner Name</FormLabel>
                   <FormControl>
-                    <Input disabled {...field} />
+                    <Input
+                      disabled
+                      value={`${pet?.user?.firstName || ""} ${
+                        pet?.user?.lastName || ""
+                      }`}
+                      {...field}
+                    />
                   </FormControl>
                 </FormItem>
               )}
             />
+
+            <FormItem className="gap-2">
+              <FormLabel>Pet Type</FormLabel>
+              <FormControl>
+                <Input disabled value={pet?.petType || ""} />
+              </FormControl>
+            </FormItem>
+
+            <FormItem className="gap-2">
+              <FormLabel>Pet Breed</FormLabel>
+              <FormControl>
+                <Input disabled value={pet?.petBreed || ""} />
+              </FormControl>
+            </FormItem>
+
+            <FormItem className="gap-2">
+              <FormLabel>Pet Age</FormLabel>
+              <FormControl>
+                <Input
+                  disabled
+                  value={pet?.petAge ? `${pet.petAge} years` : ""}
+                />
+              </FormControl>
+            </FormItem>
+
+            <FormItem className="gap-2">
+              <FormLabel>Pet Gender</FormLabel>
+              <FormControl>
+                <Input disabled value={pet?.petGender || ""} />
+              </FormControl>
+            </FormItem>
           </div>
 
           <hr className="mb-4 border-gray-300" />
@@ -165,11 +225,12 @@ const AddReport = () => {
               name="temperature"
               control={control}
               render={({ field }) => (
-                <FormItem className="gap-2">
+                <FormItem>
                   <FormLabel>Temperature (°C)</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -177,11 +238,12 @@ const AddReport = () => {
               name="heartRate"
               control={control}
               render={({ field }) => (
-                <FormItem className="gap-2">
+                <FormItem>
                   <FormLabel>Heart Rate</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -189,27 +251,29 @@ const AddReport = () => {
               name="respiratoryRate"
               control={control}
               render={({ field }) => (
-                <FormItem className="gap-2">
+                <FormItem>
                   <FormLabel>Respiratory Rate</FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
 
-          {/* Symptoms & Recommendations */}
+          {/* Symptoms and Recommendations */}
           <div className="grid grid-cols-2 gap-4">
             <FormField
               name="symptoms.0"
               control={control}
               render={({ field }) => (
-                <FormItem className="gap-2">
+                <FormItem>
                   <FormLabel>Symptoms</FormLabel>
                   <FormControl>
                     <Textarea {...field} placeholder="Comma-separated" />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -217,34 +281,33 @@ const AddReport = () => {
               name="recommendations.0"
               control={control}
               render={({ field }) => (
-                <FormItem className="gap-2">
+                <FormItem>
                   <FormLabel>Recommendations</FormLabel>
                   <FormControl>
                     <Textarea {...field} placeholder="Comma-separated" />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
 
-          {/* Disease & Treatment Sections Side by Side */}
+          {/* Diseases and Treatments */}
           <div className="grid grid-cols-2 gap-6">
             <div>
               <h3 className="text-lg font-semibold">Diseases</h3>
               {diseaseFields.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="border p-4 rounded mb-4 space-y-3"
-                >
+                <div key={item.id} className="border p-4 rounded space-y-3">
                   <FormField
                     name={`diseases.${index}.diseaseName`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="gap-2">
+                      <FormItem>
                         <FormLabel>Disease Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -252,11 +315,12 @@ const AddReport = () => {
                     name={`diseases.${index}.cureTrial`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="gap-2">
+                      <FormItem>
                         <FormLabel>Cure Trial</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -264,11 +328,12 @@ const AddReport = () => {
                     name={`diseases.${index}.effectOfTrial`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="gap-2">
+                      <FormItem>
                         <FormLabel>Effect of Trial</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -276,7 +341,7 @@ const AddReport = () => {
                     name={`diseases.${index}.effectiveness`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="gap-2">
+                      <FormItem>
                         <FormLabel>Effectiveness</FormLabel>
                         <FormControl>
                           <Select
@@ -293,6 +358,7 @@ const AddReport = () => {
                             </SelectContent>
                           </Select>
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -300,43 +366,18 @@ const AddReport = () => {
                     name={`diseases.${index}.diseaseRemarks`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="gap-2">
-                        <FormLabel>Vet Notes</FormLabel>
+                      <FormItem>
+                        <FormLabel>Disease Remarks</FormLabel>
                         <FormControl>
                           <Textarea {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      name={`diseases.${index}.treatmentStartDate`}
-                      control={control}
-                      render={({ field }) => (
-                        <FormItem className="gap-2">
-                          <FormLabel>Start Date</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      name={`diseases.${index}.treatmentEndDate`}
-                      control={control}
-                      render={({ field }) => (
-                        <FormItem className="gap-2">
-                          <FormLabel>End Date</FormLabel>
-                          <FormControl>
-                            <Input type="date" {...field} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
                 </div>
               ))}
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between">
                 <Button
                   type="button"
                   variant="outline"
@@ -359,22 +400,21 @@ const AddReport = () => {
               </div>
             </div>
 
+            {/* Treatments */}
             <div>
               <h3 className="text-lg font-semibold">Treatments</h3>
               {treatmentFields.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="border p-4 rounded mb-4 space-y-3"
-                >
+                <div key={item.id} className="border p-4 rounded space-y-3">
                   <FormField
                     name={`treatments.${index}.medicationName`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="gap-2">
+                      <FormItem>
                         <FormLabel>Medication Name</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -382,11 +422,12 @@ const AddReport = () => {
                     name={`treatments.${index}.dosage`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="gap-2">
+                      <FormItem>
                         <FormLabel>Dosage</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -394,11 +435,12 @@ const AddReport = () => {
                     name={`treatments.${index}.frequency`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="gap-2">
+                      <FormItem>
                         <FormLabel>Frequency</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -406,11 +448,12 @@ const AddReport = () => {
                     name={`treatments.${index}.durationDays`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="gap-2">
+                      <FormItem>
                         <FormLabel>Duration (Days)</FormLabel>
                         <FormControl>
                           <Input type="number" {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -418,17 +461,18 @@ const AddReport = () => {
                     name={`treatments.${index}.purpose`}
                     control={control}
                     render={({ field }) => (
-                      <FormItem className="gap-2">
+                      <FormItem>
                         <FormLabel>Purpose</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
               ))}
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between">
                 <Button
                   type="button"
                   variant="outline"
@@ -450,27 +494,28 @@ const AddReport = () => {
             </div>
           </div>
 
-          {/* Final Vet Notes*/}
-          <div className="grid gap-4">
+          {/* Vet Notes */}
+          <div>
             <FormField
               name="vetNotes"
               control={control}
               render={({ field }) => (
-                <FormItem className="gap-2">
+                <FormItem>
                   <FormLabel>Vet Notes</FormLabel>
                   <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="Final notes for report"
-                      className={`h-30`}
-                    />
+                    <Textarea {...field} placeholder="Final notes for report" />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
 
-          <div className="text-right">
+          {/* Buttons */}
+          <div className="flex justify-between">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
             <Button type="submit" className="bg-primary text-white">
               Submit
             </Button>

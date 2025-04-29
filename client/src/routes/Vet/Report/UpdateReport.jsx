@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import {
   Form,
@@ -18,16 +18,33 @@ import {
   SelectContent,
 } from "@/components/shadcn-components/ui/select";
 import { useDispatch, useSelector } from "react-redux";
-import { addReport } from "@/redux/slices/reportSlice";
-import { AuthContext } from "@/context/AuthContext";
+import {
+  addReport,
+  clearSingleReport,
+  fetchSingleReport,
+  getSingleReport,
+  updateReport,
+} from "@/redux/slices/reportSlice";
 import { fetchSinglePet, getSinglePet } from "@/redux/slices/petSlice";
 import { getSingleAppointment } from "@/redux/slices/appointmentSlice";
+import { useNavigate, useParams } from "react-router-dom";
 
-const AddReport = () => {
+const UpdateReport = () => {
   const dispatch = useDispatch();
-  const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const { id } = useParams();
   const pet = useSelector(getSinglePet);
   const currentAppointment = useSelector(getSingleAppointment);
+  const currentReport = useSelector(getSingleReport);
+
+  console.log(id, "id");
+
+  console.log(currentReport, "currentReport");
+
+  useEffect(() => {
+    dispatch(fetchSingleReport(id));
+  }, [dispatch, id]);
 
   useEffect(() => {
     dispatch(fetchSinglePet(currentAppointment?.petProfileId));
@@ -38,8 +55,8 @@ const AddReport = () => {
 
   const form = useForm({
     defaultValues: {
-      petName: "Rocky",
-      ownerName: "milan_dove",
+      petName: "",
+      ownerName: "",
       temperature: "",
       heartRate: "",
       respiratoryRate: "",
@@ -82,12 +99,51 @@ const AddReport = () => {
     remove: removeTreatment,
   } = useFieldArray({ control, name: "treatments" });
 
+  useEffect(() => {
+    if (currentReport) {
+      form.reset({
+        petName: currentReport.petProfile?.petName || "",
+        ownerName: `${currentReport.user?.firstName || ""} ${
+          currentReport.user?.lastName || ""
+        }`,
+        temperature: currentReport.temperature || "",
+        heartRate: currentReport.heartRate || "",
+        respiratoryRate: currentReport.respiratoryRate || "",
+        symptoms: [currentReport.symptoms?.join(", ") || ""],
+        recommendations: [currentReport.recommendations?.join(", ") || ""],
+        diseases:
+          currentReport.diseases?.map((d) => ({
+            diseaseName: d.diseaseName || "",
+            cureTrial: d.cureTrial || "",
+            effectOfTrial: d.effectOfTrial || "",
+            effectiveness: d.effectiveness || "mid",
+            diseaseRemarks: d.diseaseRemarks || "",
+            treatmentStartDate: d.treatmentStartDate
+              ? new Date(d.treatmentStartDate).toISOString().split("T")[0]
+              : "",
+            treatmentEndDate: d.treatmentEndDate
+              ? new Date(d.treatmentEndDate).toISOString().split("T")[0]
+              : "",
+          })) || [],
+        treatments:
+          currentReport.treatments?.map((t) => ({
+            medicationName: t.medicationName || "",
+            dosage: t.dosage || "",
+            frequency: t.frequency || "",
+            durationDays: t.durationDays || "",
+            purpose: t.purpose || "",
+          })) || [],
+        vetNotes: currentReport.vetNotes || "",
+      });
+    }
+  }, [currentReport, form]);
+
   const onSubmit = async (data) => {
     try {
       const payload = {
-        appointmentId: currentAppointment?.appointmentId,
-        userId: pet?.userId,
-        petProfileId: currentAppointment?.petProfileId,
+        appointmentId: currentReport?.appointmentId,
+        userId: currentReport?.userId,
+        petProfileId: currentReport?.petProfileId,
         temperature: Number(data.temperature),
         heartRate: Number(data.heartRate),
         respiratoryRate: Number(data.respiratoryRate),
@@ -116,21 +172,30 @@ const AddReport = () => {
 
       console.log("Payload:", payload);
 
-      await dispatch(addReport(payload)).unwrap();
-      console.log("Report successfully submitted!");
-      // Optionally reset the form here
+      await dispatch(updateReport({ id, payload })).unwrap();
+
+      // form.reset();
+      // dispatch(clearSingleReport());
+
+      // navigate("/vet/reports");
     } catch (error) {
       console.error("Failed to submit report:", error);
     }
   };
 
+  const onCancel = () => {
+    form.reset();
+    dispatch(clearSingleReport());
+    navigate("/vet/reports");
+  };
+
   return (
     <div className="max-w-full mx-auto px-6 py-2 bg-white rounded shadow">
-      <h2 className="text-2xl font-bold mb-6">Create a Report</h2>
+      <h2 className="text-2xl font-bold mb-6">Update Report</h2>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Pet Info */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <FormField
               name="petName"
               control={control}
@@ -138,23 +203,78 @@ const AddReport = () => {
                 <FormItem className="gap-2">
                   <FormLabel>Pet Name</FormLabel>
                   <FormControl>
-                    <Input disabled {...field} />
+                    <Input
+                      disabled
+                      value={currentReport?.petProfile?.petName || ""}
+                      {...field}
+                    />
                   </FormControl>
                 </FormItem>
               )}
             />
+
             <FormField
               name="ownerName"
               control={control}
               render={({ field }) => (
                 <FormItem className="gap-2">
-                  <FormLabel>Owner</FormLabel>
+                  <FormLabel>Owner Name</FormLabel>
                   <FormControl>
-                    <Input disabled {...field} />
+                    <Input
+                      disabled
+                      value={`${currentReport?.user?.firstName || ""} ${
+                        currentReport?.user?.lastName || ""
+                      }`}
+                      {...field}
+                    />
                   </FormControl>
                 </FormItem>
               )}
             />
+
+            <FormItem className="gap-2">
+              <FormLabel>Pet Type</FormLabel>
+              <FormControl>
+                <Input
+                  disabled
+                  value={currentReport?.petProfile?.petType || ""}
+                />
+              </FormControl>
+            </FormItem>
+
+            <FormItem className="gap-2">
+              <FormLabel>Pet Breed</FormLabel>
+              <FormControl>
+                <Input
+                  disabled
+                  value={currentReport?.petProfile?.petBreed || ""}
+                />
+              </FormControl>
+            </FormItem>
+
+            <FormItem className="gap-2">
+              <FormLabel>Pet Age</FormLabel>
+              <FormControl>
+                <Input
+                  disabled
+                  value={
+                    currentReport?.petProfile?.petAge
+                      ? `${currentReport.petProfile.petAge} years`
+                      : ""
+                  }
+                />
+              </FormControl>
+            </FormItem>
+
+            <FormItem className="gap-2">
+              <FormLabel>Pet Gender</FormLabel>
+              <FormControl>
+                <Input
+                  disabled
+                  value={currentReport?.petProfile?.petGender || ""}
+                />
+              </FormControl>
+            </FormItem>
           </div>
 
           <hr className="mb-4 border-gray-300" />
@@ -470,7 +590,16 @@ const AddReport = () => {
             />
           </div>
 
-          <div className="text-right">
+          <div className="flex justify-between">
+            <Button
+              type="button"
+              className="bg-primary text-white"
+              onClick={() => {
+                onCancel();
+              }}
+            >
+              Cancel
+            </Button>
             <Button type="submit" className="bg-primary text-white">
               Submit
             </Button>
@@ -481,4 +610,4 @@ const AddReport = () => {
   );
 };
 
-export default AddReport;
+export default UpdateReport;

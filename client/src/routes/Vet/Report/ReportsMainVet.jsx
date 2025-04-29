@@ -117,7 +117,7 @@ const ReportsMainVet = () => {
                   <Button
                     variant="outline"
                     onClick={() =>
-                      navigate(`/vet/update-report/${report.reportId}`)
+                      navigate(`/vet/reports/updateReport/${report.reportId}`)
                     }
                   >
                     Edit

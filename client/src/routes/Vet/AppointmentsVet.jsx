@@ -144,7 +144,7 @@ const AppointmentsVet = () => {
     console.log(appointmentDetails, "appointmentDetails");
 
     await dispatch(fetchSingleAppointment(appointmentDetails?.appointmentId));
-    navigate("/vet/appointments/addReport");
+    navigate("/vet/reports/addReport");
   };
 
   return (

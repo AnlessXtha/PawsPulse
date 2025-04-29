@@ -27,6 +27,7 @@ import { fetchVets, selectAllVets } from "@/redux/slices/vetSlice";
 import {
   addAppointment,
   addRecurringAppointments,
+  fetchAppointments,
   fetchVetAppointmentsSchedule,
   getVetAppointmentsSchedule,
 } from "@/redux/slices/appointmentSlice";
@@ -158,6 +159,7 @@ const BookAppointment = () => {
       if (vetObject) {
         await dispatch(addChat(vetObject.id));
         dispatch(fetchChats());
+        dispatch(fetchAppointments());
       } else {
         console.error(
           "Vet not found for appointment vetId:",

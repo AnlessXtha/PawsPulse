@@ -4,7 +4,7 @@ import { Button } from "@/components/shadcn-components/ui/button";
 import { AuthContext } from "@/context/AuthContext";
 import apiRequest from "@/lib/apiRequest";
 import { handleLogout } from "@/lib/auth";
-import { Mail, Phone } from "lucide-react";
+import { Bell, Mail, Phone } from "lucide-react";
 import { useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
@@ -85,10 +85,10 @@ const Navbar = () => {
                 </li>
                 <li>
                   <NavLink
-                    to="/user/viewRecords"
+                    to="/user/viewAppointments"
                     className={({ isActive }) => (isActive ? "font-bold" : "")}
                   >
-                    View Records
+                    Appointments
                   </NavLink>
                 </li>
                 <li>
@@ -97,6 +97,14 @@ const Navbar = () => {
                     className={({ isActive }) => (isActive ? "font-bold" : "")}
                   >
                     Profile
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink
+                    to="/user/notification"
+                    className={({ isActive }) => (isActive ? "font-bold" : "")}
+                  >
+                    <Bell size={24} />
                   </NavLink>
                 </li>
               </>

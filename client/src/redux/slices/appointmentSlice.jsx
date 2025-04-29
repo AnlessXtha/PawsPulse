@@ -93,6 +93,8 @@ export const updateAppointment = createAsyncThunk(
   "appointments/updateAppointment",
   async ({ id, data }, { rejectWithValue }) => {
     try {
+      console.log(data, "data");
+
       const response = await appointmentApiClient.put(`/${id}`, data);
       return response.data;
     } catch (error) {

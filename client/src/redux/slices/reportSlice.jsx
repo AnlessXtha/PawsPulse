@@ -31,6 +31,8 @@ export const fetchSingleReport = createAsyncThunk(
   async (id) => {
     try {
       const response = await reportApiClient.get(`/${id}`);
+      console.log("Fetched single report:", response.data.report);
+
       return response.data.report;
     } catch (error) {
       console.error("Error fetching single report:", error);
@@ -41,7 +43,7 @@ export const fetchSingleReport = createAsyncThunk(
 
 export const addReport = createAsyncThunk(
   "reports/addReport",
-  async (newReportData, { rejectWithValue }) => {
+  async (newReportData) => {
     try {
       const response = await reportApiClient.post("/", newReportData);
       showToast(
@@ -52,34 +54,31 @@ export const addReport = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("Error adding report:", error);
-      return rejectWithValue(error.response?.data || "Failed to add report");
     }
   }
 );
 
 export const updateReport = createAsyncThunk(
   "reports/updateReport",
-  async ({ id, data }, { rejectWithValue }) => {
+  async ({ id, payload: data }) => {
     try {
       const response = await reportApiClient.put(`/${id}`, data);
       return response.data;
     } catch (error) {
       console.error("Error updating report:", error);
-      return rejectWithValue(error.response?.data || "Failed to update report");
     }
   }
 );
 
 export const deleteReport = createAsyncThunk(
   "reports/deleteReport",
-  async (id, { rejectWithValue }) => {
+  async (id) => {
     try {
       const response = await reportApiClient.delete(`/${id}`);
       showToast("Report deleted successfully", "", "success");
       return id;
     } catch (error) {
       console.error("Error deleting report:", error);
-      return rejectWithValue(error.response?.data || "Failed to delete report");
     }
   }
 );
@@ -87,7 +86,11 @@ export const deleteReport = createAsyncThunk(
 export const reportSlice = createSlice({
   name: "reports",
   initialState,
-  reducers: {},
+  reducers: {
+    clearSingleReport: (state) => {
+      state.singleReport = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchReports.pending, (state) => {
@@ -122,5 +125,7 @@ export const selectAllReports = (state) => state.reports.reports;
 export const getSingleReport = (state) => state.reports.singleReport;
 export const getReportsStatus = (state) => state.reports.status;
 export const getReportsError = (state) => state.reports.error;
+
+export const { clearSingleReport } = reportSlice.actions;
 
 export default reportSlice.reducer;
